@@ -86,8 +86,6 @@ const loader: LoaderFunction = async ({ params }) => {
     products: Array<Product>;
   }>(COMBINED_QUERY, { handle: params.handle });
 
-  console.log(data);
-
   return json({ product: data.productByHandle, products: data.products });
 };
 
@@ -186,7 +184,6 @@ const ProductPage: RouteComponent = () => {
           <div className="mt-6 grid grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-2 sm:gap-y-10 lg:grid-cols-4">
             {relatedProducts.map((item) => {
               const relatedProduct = item.node;
-              console.log({ item });
 
               const image = relatedProduct.images.edges[0].node;
 
