@@ -1,6 +1,12 @@
 import { format, parseISO } from "date-fns";
 import * as React from "react";
-import { RouteComponent, LoaderFunction, MetaFunction, Link } from "remix";
+import {
+  RouteComponent,
+  LoaderFunction,
+  MetaFunction,
+  Link,
+  HeadersFunction,
+} from "remix";
 import { useRouteData, json } from "remix";
 import { formatMoney } from "~/lib/format-money";
 import { storefront } from "~/lib/storefront.server";
@@ -86,7 +92,21 @@ const loader: LoaderFunction = async ({ params }) => {
     products: Array<Product>;
   }>(COMBINED_QUERY, { handle: params.handle });
 
-  return json({ product: data.productByHandle, products: data.products });
+  return json(
+    { product: data.productByHandle, products: data.products },
+    {
+      headers: {
+        "Cache-Control":
+          "max-age=60, s-maxage=3600, stale-while-revalidate=604800",
+      },
+    }
+  );
+};
+
+export let headers: HeadersFunction = ({ loaderHeaders }) => {
+  return {
+    "Cache-Control": loaderHeaders.get("Cache-Control") ?? "",
+  };
 };
 
 const meta: MetaFunction = ({ data }: { data: RouteData }) => ({
@@ -106,13 +126,13 @@ const ProductPage: RouteComponent = () => {
     <>
       {/* header */}
 
-      <main className="max-w-7xl mx-auto pt-14 px-4 sm:pt-24 sm:px-6 lg:px-8">
+      <main className="px-4 mx-auto max-w-7xl pt-14 sm:pt-24 sm:px-6 lg:px-8">
         <div className="lg:grid lg:grid-cols-7 lg:gap-x-8 xl:gap-x-16">
           <div className="lg:col-span-4">
-            <div className="aspect-w-4 aspect-h-3 rounded-lg bg-gray-100 overflow-hidden">
+            <div className="overflow-hidden bg-gray-100 rounded-lg aspect-w-4 aspect-h-3">
               <img
                 src={image.transformedSrc}
-                className="object-center object-cover"
+                className="object-cover object-center"
                 alt={image.altText}
               />
             </div>
@@ -126,7 +146,7 @@ const ProductPage: RouteComponent = () => {
                 <h2 id="information-heading" className="sr-only">
                   Product information
                 </h2>
-                <p className="text-sm text-gray-500 mt-2">
+                <p className="mt-2 text-sm text-gray-500">
                   {product.tags.join(", ")} · Updated{" "}
                   <time dateTime={product.updatedAt}>
                     {format(parseISO(product.updatedAt), "dd MMM yyyy")}
@@ -134,11 +154,11 @@ const ProductPage: RouteComponent = () => {
                 </p>
               </div>
             </div>
-            <p className="text-gray-500 mt-6">{product.description}</p>
-            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+            <p className="mt-6 text-gray-500">{product.description}</p>
+            <div className="grid grid-cols-1 mt-10 gap-x-6 gap-y-4 sm:grid-cols-2">
               <button
                 type="button"
-                className="w-full bg-gray-900 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-gray-500"
+                className="flex items-center justify-center w-full px-8 py-3 text-base font-medium text-white bg-gray-900 border border-transparent rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-gray-500"
               >
                 <span>
                   Pay{" "}
@@ -149,7 +169,7 @@ const ProductPage: RouteComponent = () => {
               </button>
               <button
                 type="button"
-                className="w-full bg-white border rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-gray-900 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-gray-500"
+                className="flex items-center justify-center w-full px-8 py-3 text-base font-medium text-gray-900 bg-white border rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-gray-500"
               >
                 Preview
               </button>
@@ -175,13 +195,13 @@ const ProductPage: RouteComponent = () => {
               Customers also viewed
             </h2>
             <Link
-              className="whitespace-nowrap text-sm font-medium text-gray-900 hover:text-gray-700"
+              className="text-sm font-medium text-gray-900 whitespace-nowrap hover:text-gray-700"
               to="/"
             >
               View all<span aria-hidden="true"> →</span>
             </Link>
           </div>
-          <div className="mt-6 grid grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-2 sm:gap-y-10 lg:grid-cols-4">
+          <div className="grid grid-cols-1 mt-6 gap-x-8 gap-y-8 sm:grid-cols-2 sm:gap-y-10 lg:grid-cols-4">
             {relatedProducts.map((item) => {
               const relatedProduct = item.node;
 
@@ -189,14 +209,14 @@ const ProductPage: RouteComponent = () => {
 
               return (
                 <div className="relative group" key={relatedProduct.handle}>
-                  <div className="aspect-w-4 aspect-h-3 rounded-lg overflow-hidden bg-gray-100">
+                  <div className="overflow-hidden bg-gray-100 rounded-lg aspect-w-4 aspect-h-3">
                     <img
                       src={image.transformedSrc}
-                      className="object-center object-cover group-hover:opacity-75"
+                      className="object-cover object-center group-hover:opacity-75"
                       alt={image.altText}
                     />
                   </div>
-                  <div className="mt-4 flex items-center justify-between text-base font-medium text-gray-900 space-x-8">
+                  <div className="flex items-center justify-between mt-4 space-x-8 text-base font-medium text-gray-900">
                     <h3>
                       <Link to={`/products/${relatedProduct.handle}`}>
                         <span aria-hidden="true" className="absolute inset-0" />

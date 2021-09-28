@@ -1,4 +1,11 @@
-import { MetaFunction, LinksFunction, LoaderFunction, Link } from "remix";
+import {
+  MetaFunction,
+  LinksFunction,
+  LoaderFunction,
+  Link,
+  json,
+  HeadersFunction,
+} from "remix";
 import { useRouteData } from "remix";
 import { storefront } from "~/lib/storefront.server";
 
@@ -76,7 +83,21 @@ interface RouteData {
 export let loader: LoaderFunction = async () => {
   const { data } = await storefront<RouteData>(PRODUCTS_QUERY);
 
-  return { products: data.products };
+  return json(
+    { products: data.products },
+    {
+      headers: {
+        "Cache-Control":
+          "max-age=60, s-maxage=3600, stale-while-revalidate=604800",
+      },
+    }
+  );
+};
+
+export let headers: HeadersFunction = ({ loaderHeaders }) => {
+  return {
+    "Cache-Control": loaderHeaders.get("Cache-Control") ?? "",
+  };
 };
 
 export default function Index() {
@@ -84,14 +105,14 @@ export default function Index() {
 
   return (
     <>
-      <header className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div className="border-b border-gray-200 px-4 sm:px-0">
-          <div className="h-16 flex items-center justify-between">
-            <div className="flex-1 flex">
+      <header className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div className="px-4 border-b border-gray-200 sm:px-0">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex flex-1">
               <a href="/">
                 <span className="sr-only">Digital Design Assets</span>
                 <svg
-                  className="text-purple-600 w-8 h-8"
+                  className="w-8 h-8 text-purple-600"
                   viewBox="0 0 32 32"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -105,7 +126,7 @@ export default function Index() {
                 </svg>
               </a>
             </div>
-            <div className="flex-1 flex items-center justify-end">
+            <div className="flex items-center justify-end flex-1">
               <a href="#" className="p-2 text-gray-400 hover:text-gray-500">
                 <span className="sr-only">Search</span>
                 <SearchIcon className="w-6 h-6" />
@@ -114,22 +135,22 @@ export default function Index() {
           </div>
         </div>
       </header>
-      <main className="mt-24 px-4 sm:mt-32">
-        <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+      <main className="px-4 mt-24 sm:mt-32">
+        <div className="mx-auto text-center max-w-7xl">
+          <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
             Beautiful digital design assets
           </h1>
-          <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+          <p className="max-w-md mx-auto mt-3 text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
             Take your digital products to another level with our collection of
             UI kits, templates and icon sets. All our assets were carefully
             designed to work together beautifully. We have obsessed over every
             little detail, and we really believe it shows.
           </p>
-          <div className="mt-5 max-w-md mx-auto flex justify-center md:mt-8">
+          <div className="flex justify-center max-w-md mx-auto mt-5 md:mt-8">
             <div className="rounded-md shadow">
               <a
                 href="#"
-                className="w-full flex items-center justify-center px-6 py-4 border border-transparent text-base font-medium rounded-md text-white bg-gray-900 divide-x divide-gray-600 hover:bg-gray-700 md:text-lg"
+                className="flex items-center justify-center w-full px-6 py-4 text-base font-medium text-white bg-gray-900 border border-transparent divide-x divide-gray-600 rounded-md hover:bg-gray-700 md:text-lg"
               >
                 <span className="pr-6">Get the bundle</span>
                 <span className="pl-6">$199</span>
@@ -138,7 +159,7 @@ export default function Index() {
           </div>
         </div>
 
-        <div className="max-w-2xl mx-auto pt-24 px-4 sm:pt-32 sm:px-6 lg:max-w-7xl lg:px-8">
+        <div className="max-w-2xl px-4 pt-24 mx-auto sm:pt-32 sm:px-6 lg:max-w-7xl lg:px-8">
           <h2 id="products-heading" className="sr-only">
             Products
           </h2>
@@ -154,10 +175,10 @@ export default function Index() {
                   key={product.handle}
                   className="group"
                 >
-                  <div className="w-full aspect-w-4 aspect-h-3 rounded-lg overflow-hidden sm:aspect-w-4 sm:aspect-h-3">
+                  <div className="w-full overflow-hidden rounded-lg aspect-w-4 aspect-h-3 sm:aspect-w-4 sm:aspect-h-3">
                     <img src={image.transformedSrc} alt={image.altText} />
                   </div>
-                  <div className="mt-4 flex items-center justify-between text-base font-medium text-gray-900">
+                  <div className="flex items-center justify-between mt-4 text-base font-medium text-gray-900">
                     <h3>{product.title}</h3>
                     <p>
                       {formatMoney(
@@ -174,15 +195,15 @@ export default function Index() {
           </div>
         </div>
       </main>
-      <footer className="max-w-7xl mx-auto mt-24 px-4 sm:px-6 sm:mt-32 lg:px-8">
-        <div className="py-12 border-t  md:flex md:items-center md:justify-between">
+      <footer className="px-4 mx-auto mt-24 max-w-7xl sm:px-6 sm:mt-32 lg:px-8">
+        <div className="py-12 border-t md:flex md:items-center md:justify-between">
           <div className="flex justify-center space-x-6 md:order-2">
             <a href="#" className="text-gray-400 hover:text-gray-500">
               <span className="sr-only">Facebook</span>
               <svg
                 fill="currentColor"
                 viewBox="0 0 24 24"
-                className="h-6 w-6"
+                className="w-6 h-6"
                 aria-hidden="true"
               >
                 <path
@@ -197,7 +218,7 @@ export default function Index() {
               <svg
                 fill="currentColor"
                 viewBox="0 0 24 24"
-                className="h-6 w-6"
+                className="w-6 h-6"
                 aria-hidden="true"
               >
                 <path
@@ -212,7 +233,7 @@ export default function Index() {
               <svg
                 fill="currentColor"
                 viewBox="0 0 24 24"
-                className="h-6 w-6"
+                className="w-6 h-6"
                 aria-hidden="true"
               >
                 <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path>
@@ -223,7 +244,7 @@ export default function Index() {
               <svg
                 fill="currentColor"
                 viewBox="0 0 24 24"
-                className="h-6 w-6"
+                className="w-6 h-6"
                 aria-hidden="true"
               >
                 <path
@@ -238,7 +259,7 @@ export default function Index() {
               <svg
                 fill="currentColor"
                 viewBox="0 0 24 24"
-                className="h-6 w-6"
+                className="w-6 h-6"
                 aria-hidden="true"
               >
                 <path
@@ -250,7 +271,7 @@ export default function Index() {
             </a>
           </div>
           <div className="mt-8 md:mt-0 md:order-1">
-            <p className="text-center text-sm text-gray-400">
+            <p className="text-sm text-center text-gray-400">
               © 2020 Workflow, Inc. All rights reserved.
             </p>
           </div>
