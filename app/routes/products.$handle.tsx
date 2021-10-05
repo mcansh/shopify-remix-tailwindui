@@ -1,5 +1,4 @@
 import { format, parseISO } from "date-fns";
-import * as React from "react";
 import {
   RouteComponent,
   LoaderFunction,
@@ -103,7 +102,7 @@ const loader: LoaderFunction = async ({ params }) => {
   );
 };
 
-export let headers: HeadersFunction = ({ loaderHeaders }) => {
+let headers: HeadersFunction = ({ loaderHeaders }) => {
   return {
     "Cache-Control": loaderHeaders.get("Cache-Control") ?? "",
   };
@@ -245,4 +244,4 @@ const ProductPage: RouteComponent = () => {
 };
 
 export default ProductPage;
-export { loader, meta };
+export { headers, loader, meta };

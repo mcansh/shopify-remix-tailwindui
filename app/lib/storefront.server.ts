@@ -14,7 +14,7 @@ async function storefront<T>(
   query: string,
   variables = {}
 ): Promise<{ data: T }> {
-  const response = await fetcher<GraphQLResponse<T>>(process.env.API_URL, {
+  const data = await fetcher<GraphQLResponse<T>>(process.env.API_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -23,11 +23,11 @@ async function storefront<T>(
     body: JSON.stringify({ query, variables }),
   });
 
-  if (response.errors) {
-    throw new Error(response.errors.map((e) => e.message).join("\n"));
+  if (data.errors) {
+    throw new Error(data.errors.map((e) => e.message).join("\n"));
   }
 
-  return response;
+  return data;
 }
 
 export { storefront };

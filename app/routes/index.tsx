@@ -15,14 +15,14 @@ import stylesUrl from "../styles/index.css";
 import { formatMoney } from "~/lib/format-money";
 import { gql } from "~/utils";
 
-export let meta: MetaFunction = () => {
+let meta: MetaFunction = () => {
   return {
     title: "Remix Starter",
     description: "Welcome to remix!",
   };
 };
 
-export let links: LinksFunction = () => {
+let links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: stylesUrl }];
 };
 
@@ -80,7 +80,7 @@ interface RouteData {
   };
 }
 
-export let loader: LoaderFunction = async () => {
+let loader: LoaderFunction = async () => {
   const { data } = await storefront<RouteData>(PRODUCTS_QUERY);
 
   return json(
@@ -94,13 +94,13 @@ export let loader: LoaderFunction = async () => {
   );
 };
 
-export let headers: HeadersFunction = ({ loaderHeaders }) => {
+let headers: HeadersFunction = ({ loaderHeaders }) => {
   return {
     "Cache-Control": loaderHeaders.get("Cache-Control") ?? "",
   };
 };
 
-export default function Index() {
+function Index() {
   let data = useRouteData<RouteData>();
 
   return (
@@ -280,3 +280,6 @@ export default function Index() {
     </>
   );
 }
+
+export default Index;
+export { headers, links, loader, meta };
