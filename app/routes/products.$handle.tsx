@@ -9,97 +9,26 @@ import { format, parseISO } from "date-fns";
 
 import { formatMoney } from "~/lib/format-money";
 import { storefront } from "~/lib/storefront.server";
-import { gql } from "~/utils";
-
-interface Product {
-  title: string;
-  description: string;
-  handle: string;
-  updatedAt: string;
-  tags: Array<string>;
-  priceRange: {
-    minVariantPrice: {
-      amount: string;
-    };
-  };
-  images: {
-    edges: Array<{
-      node: {
-        transformedSrc: string;
-        altText: string;
-      };
-    }>;
-  };
-}
-
-const COMBINED_QUERY = gql`
-  query SingleProduct($handle: String!) {
-    productByHandle(handle: $handle) {
-      title
-      description
-      handle
-      updatedAt
-      tags
-      priceRange {
-        minVariantPrice {
-          amount
-        }
-      }
-      images(first: 1) {
-        edges {
-          node {
-            transformedSrc
-            altText
-          }
-        }
-      }
-    }
-
-    products(first: 6) {
-      edges {
-        node {
-          title
-          handle
-          tags
-          priceRange {
-            minVariantPrice {
-              amount
-            }
-          }
-          images(first: 1) {
-            edges {
-              node {
-                transformedSrc
-                altText
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`;
+import { getSdk, ProductByHandleQuery, ProductsQuery } from "~/graphql";
 
 interface RouteData {
-  product: Product;
-  relatedProducts: Product[];
+  product: ProductByHandleQuery["productByHandle"];
+  relatedProducts: ProductsQuery["products"]["edges"];
 }
 
 const loader: LoaderFunction = async ({ params }) => {
-  const { data } = await storefront<{
-    productByHandle: Product;
-    products: any;
-  }>(COMBINED_QUERY, { handle: params.handle });
+  let sdk = getSdk(storefront);
+  let [{ productByHandle }, { products }] = await Promise.all([
+    sdk.ProductByHandle({ handle: params.handle }),
+    sdk.Products(),
+  ]);
 
-  // const relatedProducts =
-  //   data.products.edges
-  //     ?.filter((item: any) => {
-  //       return item.node.handle !== params.handle;
-  //     })
-  //     .slice(0, 4) ?? [];
+  const relatedProducts = products.edges
+    .filter((item) => item.node.handle !== params.handle)
+    .slice(0, 4);
 
   return json(
-    { product: data.productByHandle, relatedProducts: [] },
+    { product: productByHandle, relatedProducts },
     {
       headers: {
         "Cache-Control":
@@ -115,12 +44,22 @@ let headers: HeadersFunction = ({ loaderHeaders }) => {
   };
 };
 
-const meta: MetaFunction = ({ data }: { data: RouteData }) => ({
-  title: `${data.product.title}`,
-});
+const meta: MetaFunction = ({ data }: { data: RouteData }) => {
+  if (!data.product) {
+    return {
+      title: "Product not found",
+    };
+  }
+
+  return { title: `${data.product.title}` };
+};
 
 const ProductPage: RouteComponent = () => {
   const { product, relatedProducts } = useRouteData<RouteData>();
+
+  if (!product) {
+    return <div>Product not found</div>;
+  }
 
   let image = product.images.edges[0].node;
 
@@ -132,7 +71,7 @@ const ProductPage: RouteComponent = () => {
             <img
               src={image.transformedSrc}
               className="object-cover object-center"
-              alt={image.altText}
+              alt={image.altText ?? ""}
             />
           </div>
         </div>
@@ -200,32 +139,33 @@ const ProductPage: RouteComponent = () => {
         </div>
         <div className="grid grid-cols-1 mt-6 gap-x-8 gap-y-8 sm:grid-cols-2 sm:gap-y-10 lg:grid-cols-4">
           {relatedProducts.map((relatedProduct) => {
-            const image = relatedProduct.images.edges[0].node;
+            let product = relatedProduct.node;
+            const image = product.images.edges[0].node;
 
             return (
-              <div className="relative group" key={relatedProduct.handle}>
+              <div className="relative group" key={product.handle}>
                 <div className="overflow-hidden bg-gray-100 rounded-lg aspect-w-4 aspect-h-3">
                   <img
                     src={image.transformedSrc}
                     className="object-cover object-center group-hover:opacity-75"
-                    alt={image.altText}
+                    alt={image.altText ?? ""}
                   />
                 </div>
                 <div className="flex items-center justify-between mt-4 space-x-8 text-base font-medium text-gray-900">
                   <h3>
-                    <Link to={`/products/${relatedProduct.handle}`}>
+                    <Link to={`/products/${product.handle}`}>
                       <span aria-hidden="true" className="absolute inset-0" />
-                      {relatedProduct.title}
+                      {product.title}
                     </Link>
                   </h3>
                   <p>
                     {formatMoney(
-                      Number(relatedProduct.priceRange.minVariantPrice.amount)
+                      Number(product.priceRange.minVariantPrice.amount)
                     )}
                   </p>
                 </div>
                 <p className="mt-1 text-sm text-gray-500">
-                  {relatedProduct.tags.join(", ")}
+                  {product.tags.join(", ")}
                 </p>
               </div>
             );

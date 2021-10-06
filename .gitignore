@@ -5,3 +5,4 @@
 /app/styles/tailwind.css
 .env
 /.netlify
+app/graphql/index.ts

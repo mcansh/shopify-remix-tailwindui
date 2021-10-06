@@ -8,10 +8,10 @@ import {
 } from "remix";
 import { useRouteData } from "remix";
 
-import { storefront } from "~/lib/storefront.server";
 import { formatMoney } from "~/lib/format-money";
-import { gql } from "~/utils";
 import stylesUrl from "~/styles/index.css";
+import { getSdk, ProductsQuery } from "~/graphql";
+import { storefront } from "~/lib/storefront.server";
 
 let meta: MetaFunction = () => {
   return {
@@ -24,65 +24,16 @@ let links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: stylesUrl }];
 };
 
-const PRODUCTS_QUERY = gql`
-  query Products {
-    products(first: 6) {
-      edges {
-        node {
-          title
-          handle
-          tags
-          priceRange {
-            minVariantPrice {
-              amount
-            }
-          }
-          images(first: 1) {
-            edges {
-              node {
-                transformedSrc
-                altText
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
-interface Product {
-  title: string;
-  handle: string;
-  tags: Array<string>;
-  priceRange: {
-    minVariantPrice: {
-      amount: string;
-    };
-  };
-  images: {
-    edges: Array<{
-      node: {
-        transformedSrc: string;
-        altText: string;
-      };
-    }>;
-  };
-}
-
 interface RouteData {
-  products: {
-    edges: Array<{
-      node: Product;
-    }>;
-  };
+  products: ProductsQuery["products"];
 }
 
 let loader: LoaderFunction = async () => {
-  const { data } = await storefront<RouteData>(PRODUCTS_QUERY);
+  let sdk = getSdk(storefront);
+  let { products } = await sdk.Products();
 
   return json(
-    { products: data.products },
+    { products: products },
     {
       headers: {
         "Cache-Control":
@@ -143,7 +94,7 @@ function Index() {
                 className="group"
               >
                 <div className="w-full overflow-hidden rounded-lg aspect-w-4 aspect-h-3 sm:aspect-w-4 sm:aspect-h-3">
-                  <img src={image.transformedSrc} alt={image.altText} />
+                  <img src={image.transformedSrc} alt={image.altText ?? ""} />
                 </div>
                 <div className="flex items-center justify-between mt-4 text-base font-medium text-gray-900">
                   <h3>{product.title}</h3>
