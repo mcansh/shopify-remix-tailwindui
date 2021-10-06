@@ -3,6 +3,8 @@ import { Meta, Links, Scripts, LiveReload } from "remix";
 import { Outlet } from "react-router-dom";
 
 import tailwindUrl from "./styles/tailwind.css";
+import { Header } from "./components/header";
+import { Footer } from "./components/footer";
 
 export let links: LinksFunction = () => {
   return [
@@ -25,7 +27,6 @@ function Document({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
-
         <Scripts />
         {process.env.NODE_ENV === "development" && <LiveReload />}
       </body>
@@ -36,7 +37,9 @@ function Document({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <Document>
+      <Header />
       <Outlet />
+      <Footer />
     </Document>
   );
 }
