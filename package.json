@@ -5,7 +5,7 @@
   "license": "",
   "scripts": {
     "postinstall": "remix setup",
-    "build": "remix build",
+    "build": "npm run codegen && remix build",
     "dev": "netlify dev",
     "dev:css": "tailwindcss --output ./app/styles/tailwind.css --watch --postcss",
     "build:css": "tailwindcss --output ./app/styles/tailwind.css --minify --postcss",
