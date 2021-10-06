@@ -12,10 +12,14 @@ export default function handleRequest(
     <RemixServer context={remixContext} url={request.url} />
   );
 
+  if (process.env.NODE_ENV === "development") {
+    responseHeaders.set("Cache-Control", "no-cache");
+  }
+
   responseHeaders.set("Content-Type", "text/html");
 
   return new Response("<!DOCTYPE html>" + markup, {
     status: responseStatusCode,
-    headers: responseHeaders
+    headers: responseHeaders,
   });
 }
