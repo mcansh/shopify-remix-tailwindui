@@ -18,5 +18,12 @@ query ProductByHandle($handle: String!) {
         }
       }
     }
+    variants(first: 1) {
+      edges {
+        node {
+          id
+        }
+      }
+    }
   }
 }

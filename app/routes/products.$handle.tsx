@@ -1,8 +1,12 @@
-import type {
+import {
   RouteComponent,
   LoaderFunction,
   MetaFunction,
   HeadersFunction,
+  ActionFunction,
+  redirect,
+  Form,
+  usePendingFormSubmit,
 } from "remix";
 import { Link, useRouteData, json } from "remix";
 import { format, parseISO } from "date-fns";
@@ -38,6 +42,26 @@ const loader: LoaderFunction = async ({ params }) => {
   );
 };
 
+let action: ActionFunction = async ({ request }) => {
+  let body = await request.text();
+  let formData = new URLSearchParams(body);
+  let variantId = formData.get("variantId");
+
+  if (!variantId) {
+    return redirect(request.url);
+  }
+
+  let sdk = getSdk(storefront);
+
+  let res = await sdk.CreateCheckout({ variantId });
+
+  if (!res.checkoutCreate?.checkout) {
+    return redirect(request.url);
+  }
+
+  return redirect(res.checkoutCreate.checkout.webUrl);
+};
+
 let headers: HeadersFunction = ({ loaderHeaders }) => {
   return {
     "Cache-Control": loaderHeaders.get("Cache-Control") ?? "",
@@ -55,12 +79,14 @@ const meta: MetaFunction = ({ data }: { data: RouteData }) => {
 };
 
 const ProductPage: RouteComponent = () => {
-  const { product, relatedProducts } = useRouteData<RouteData>();
+  let { product, relatedProducts } = useRouteData<RouteData>();
+  let pendingForm = usePendingFormSubmit();
 
   if (!product) {
     return <div>Product not found</div>;
   }
 
+  let variantId = product.variants.edges[0].node.id;
   let image = product.images.edges[0].node;
 
   return (
@@ -94,15 +120,44 @@ const ProductPage: RouteComponent = () => {
           </div>
           <p className="mt-6 text-gray-500">{product.description}</p>
           <div className="grid grid-cols-1 mt-10 gap-x-6 gap-y-4 sm:grid-cols-2">
-            <button
-              type="button"
-              className="flex items-center justify-center w-full px-8 py-3 text-base font-medium text-white bg-gray-900 border border-transparent rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-gray-500"
-            >
-              <span>
-                Pay{" "}
-                {formatMoney(Number(product.priceRange.minVariantPrice.amount))}
-              </span>
-            </button>
+            <Form method="post">
+              <fieldset disabled={!!pendingForm}>
+                <input type="hidden" name="variantId" value={variantId} />
+                <button
+                  type="submit"
+                  className="flex items-center justify-center w-full px-8 py-3 text-base font-medium text-white bg-gray-900 border border-transparent rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-gray-500"
+                >
+                  {pendingForm && (
+                    <svg
+                      className="w-5 h-5 mr-3 -ml-1 text-white animate-spin"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                  )}
+                  <span>
+                    Pay{" "}
+                    {formatMoney(
+                      Number(product.priceRange.minVariantPrice.amount)
+                    )}
+                  </span>
+                </button>
+              </fieldset>
+            </Form>
             <button
               type="button"
               className="flex items-center justify-center w-full px-8 py-3 text-base font-medium text-gray-900 bg-white border rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-gray-500"
@@ -177,4 +232,4 @@ const ProductPage: RouteComponent = () => {
 };
 
 export default ProductPage;
-export { headers, loader, meta };
+export { action, headers, loader, meta };
