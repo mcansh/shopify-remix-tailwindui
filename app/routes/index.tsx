@@ -1,11 +1,11 @@
-import {
-  MetaFunction,
+import type {
+  HeadersFunction,
   LinksFunction,
   LoaderFunction,
-  Link,
-  json,
-  HeadersFunction,
+  MetaFunction,
+  RouteComponent,
 } from "remix";
+import { Link, json } from "remix";
 import { useRouteData } from "remix";
 
 import { formatMoney } from "~/lib/format-money";
@@ -33,7 +33,7 @@ let loader: LoaderFunction = async () => {
   let { products } = await sdk.Products();
 
   return json(
-    { products: products },
+    { products },
     {
       headers: {
         "Cache-Control":
@@ -49,7 +49,7 @@ let headers: HeadersFunction = ({ loaderHeaders }) => {
   };
 };
 
-function Index() {
+const Index: RouteComponent = () => {
   let data = useRouteData<RouteData>();
 
   return (
@@ -114,7 +114,7 @@ function Index() {
       </div>
     </main>
   );
-}
+};
 
 export default Index;
 export { headers, links, loader, meta };

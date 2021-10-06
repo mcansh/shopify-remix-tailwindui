@@ -1,5 +1,3 @@
-import * as React from "react";
-
 const Footer: React.VFC = () => {
   return (
     <footer className="px-4 mx-auto mt-24 max-w-7xl sm:px-6 sm:mt-32 lg:px-8">

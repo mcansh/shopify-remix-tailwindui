@@ -1,14 +1,18 @@
-import {
-  RouteComponent,
+import type {
+  ActionFunction,
+  HeadersFunction,
   LoaderFunction,
   MetaFunction,
-  HeadersFunction,
-  ActionFunction,
-  redirect,
-  Form,
-  usePendingFormSubmit,
+  RouteComponent,
 } from "remix";
-import { Link, useRouteData, json } from "remix";
+import {
+  Form,
+  json,
+  Link,
+  redirect,
+  usePendingFormSubmit,
+  useRouteData,
+} from "remix";
 import { format, parseISO } from "date-fns";
 
 import { formatMoney } from "~/lib/format-money";

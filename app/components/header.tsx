@@ -1,5 +1,3 @@
-import * as React from "react";
-
 import { SearchIcon } from "@heroicons/react/outline";
 
 const Header: React.VFC = () => {
