@@ -5,6 +5,7 @@
   "license": "",
   "scripts": {
     "postinstall": "remix setup && patch-package",
+    "prebuild": "patch-package",
     "build": "npm run codegen && npm run build:css && remix build",
     "dev": "pm2-dev pm2.config.js",
     "dev:remix": "remix dev",
