@@ -6,11 +6,11 @@ import {
 } from "remix";
 import { Meta, Links, Scripts, LiveReload, useCatch } from "remix";
 import { Outlet } from "react-router-dom";
+import { json } from "remix-utils";
 
 import tailwindUrl from "./styles/tailwind.css";
 import { Header } from "./components/header";
 import { Footer } from "./components/footer";
-import { json } from "remix-utils";
 
 let links: LinksFunction = () => {
   return [
@@ -101,4 +101,4 @@ const CatchBoundary: React.VFC = () => {
 };
 
 export default App;
-export { links, ErrorBoundary, CatchBoundary };
+export { loader, links, ErrorBoundary, CatchBoundary };
