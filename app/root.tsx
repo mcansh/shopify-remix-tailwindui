@@ -1,10 +1,16 @@
-import type { ErrorBoundaryComponent, LinksFunction } from "remix";
+import {
+  ErrorBoundaryComponent,
+  LinksFunction,
+  LoaderFunction,
+  useLoaderData,
+} from "remix";
 import { Meta, Links, Scripts, LiveReload, useCatch } from "remix";
 import { Outlet } from "react-router-dom";
 
 import tailwindUrl from "./styles/tailwind.css";
 import { Header } from "./components/header";
 import { Footer } from "./components/footer";
+import { json } from "remix-utils";
 
 let links: LinksFunction = () => {
   return [
@@ -16,7 +22,21 @@ let links: LinksFunction = () => {
   ];
 };
 
-function Document({ children }: { children: React.ReactNode }) {
+interface RouteData {
+  js: boolean;
+}
+
+let loader: LoaderFunction = ({ request }) => {
+  let url = new URL(request.url);
+  let js = url.searchParams.has("js");
+  return json<RouteData>({ js });
+};
+
+interface DocumentProps {
+  enableJS?: boolean;
+}
+
+const Document: React.FC<DocumentProps> = ({ children, enableJS }) => {
   return (
     <html lang="en">
       <head>
@@ -28,16 +48,17 @@ function Document({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
-        <Scripts />
+        {enableJS && <Scripts />}
         {process.env.NODE_ENV === "development" && <LiveReload />}
       </body>
     </html>
   );
-}
+};
 
 function App() {
+  let data = useLoaderData<RouteData>();
   return (
-    <Document>
+    <Document enableJS={data.js}>
       <Header />
       <Outlet />
       <Footer />
