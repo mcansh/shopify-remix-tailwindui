@@ -28,8 +28,6 @@ const loader: LoaderFunction = async ({ params }) => {
     sdk.Products(),
   ]);
 
-  console.log({ productByHandle });
-
   if (!productByHandle) {
     throw new Response("", { status: 404 });
   }
