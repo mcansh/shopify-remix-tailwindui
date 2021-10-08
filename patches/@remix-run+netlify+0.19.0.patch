@@ -1,45 +1,8 @@
 diff --git a/node_modules/@remix-run/netlify/server.js b/node_modules/@remix-run/netlify/server.js
-index b8a5db2..85e50a0 100644
+index b8a5db2..87e9fae 100644
 --- a/node_modules/@remix-run/netlify/server.js
 +++ b/node_modules/@remix-run/netlify/server.js
-@@ -1,49 +1,48 @@
- // Copyright © 2021 Remix Software Inc. All rights reserved.
--'use strict';
-+"use strict";
- 
--Object.defineProperty(exports, '__esModule', { value: true });
-+Object.defineProperty(exports, "__esModule", { value: true });
- 
--var serverRuntime = require('@remix-run/server-runtime');
--var node = require('@remix-run/node');
-+var serverRuntime = require("@remix-run/server-runtime");
-+var node = require("@remix-run/node");
- 
- function createRequestHandler({
-   build,
-   getLoadContext,
--  mode = process.env.NODE_ENV
-+  mode = process.env.NODE_ENV,
- }) {
-   let platform = {
--    formatServerError: node.formatServerError
-+    formatServerError: node.formatServerError,
-   };
-   let handleRequest = serverRuntime.createRequestHandler(build, platform, mode);
-   return async (event, context) => {
-     let request = createRemixRequest(event);
--    let loadContext = typeof getLoadContext === "function" ? getLoadContext(event, context) : undefined;
-+    let loadContext =
-+      typeof getLoadContext === "function"
-+        ? getLoadContext(event, context)
-+        : undefined;
-     let response = await handleRequest(request, loadContext);
-     return {
-       statusCode: response.status,
-       multiValueHeaders: response.headers.raw(),
--      body: await response.text()
-+      body: await response.text(),
-     };
+@@ -27,15 +27,9 @@ function createRequestHandler({
    };
  }
  function createRemixRequest(event) {
@@ -58,15 +21,3 @@ index b8a5db2..85e50a0 100644
  
    let init = {
      method: event.httpMethod,
--    headers: createRemixHeaders(event.multiValueHeaders)
-+    headers: createRemixHeaders(event.multiValueHeaders),
-   };
- 
-   if (event.httpMethod !== "GET" && event.httpMethod !== "HEAD" && event.body) {
--    init.body = event.isBase64Encoded ? Buffer.from(event.body, "base64").toString() : event.body;
-+    init.body = event.isBase64Encoded
-+      ? Buffer.from(event.body, "base64").toString()
-+      : event.body;
-   }
- 
-   return new node.Request(url.toString(), init);
