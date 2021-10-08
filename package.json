@@ -40,6 +40,7 @@
     "@tailwindcss/typography": "0.4.1",
     "@types/react": "17.0.27",
     "@types/react-dom": "17.0.9",
+    "autoprefixer": "10.3.7",
     "netlify-cli": "6.10.4",
     "pm2": "5.1.2",
     "postcss-100vh-fix": "1.0.2",
