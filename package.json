@@ -4,7 +4,7 @@
   "description": "",
   "license": "",
   "scripts": {
-    "postinstall": "remix setup",
+    "postinstall": "remix setup && patch-package",
     "build": "npm run codegen && npm run build:css && remix build",
     "dev": "pm2-dev pm2.config.js",
     "dev:remix": "remix dev",
@@ -42,6 +42,7 @@
     "@types/react-dom": "17.0.9",
     "autoprefixer": "10.3.7",
     "netlify-cli": "6.10.4",
+    "patch-package": "6.4.7",
     "pm2": "5.1.2",
     "postcss-100vh-fix": "1.0.2",
     "tailwindcss": "2.2.16",
