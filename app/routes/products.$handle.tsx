@@ -1,18 +1,15 @@
-import type {
+import {
   ActionFunction,
   HeadersFunction,
   LoaderFunction,
   MetaFunction,
   RouteComponent,
+  useCatch,
+  useLoaderData,
+  useTransition,
 } from "remix";
-import {
-  Form,
-  json,
-  Link,
-  redirect,
-  usePendingFormSubmit,
-  useRouteData,
-} from "remix";
+import { Form, Link, redirect } from "remix";
+import { json } from "remix-utils";
 import { format, parseISO } from "date-fns";
 
 import { formatMoney } from "~/lib/format-money";
@@ -20,22 +17,28 @@ import { storefront } from "~/lib/storefront.server";
 import { getSdk, ProductByHandleQuery, ProductsQuery } from "~/graphql";
 
 interface RouteData {
-  product: ProductByHandleQuery["productByHandle"];
+  product: NonNullable<ProductByHandleQuery["productByHandle"]>;
   relatedProducts: ProductsQuery["products"]["edges"];
 }
 
 const loader: LoaderFunction = async ({ params }) => {
   let sdk = getSdk(storefront);
   let [{ productByHandle }, { products }] = await Promise.all([
-    sdk.ProductByHandle({ handle: params.handle }),
+    sdk.ProductByHandle({ handle: params.handle! }),
     sdk.Products(),
   ]);
+
+  console.log({ productByHandle });
+
+  if (!productByHandle) {
+    throw new Response("", { status: 404 });
+  }
 
   const relatedProducts = products.edges
     .filter((item) => item.node.handle !== params.handle)
     .slice(0, 4);
 
-  return json(
+  return json<RouteData>(
     { product: productByHandle, relatedProducts },
     {
       headers: {
@@ -73,7 +76,7 @@ let headers: HeadersFunction = ({ loaderHeaders }) => {
 };
 
 const meta: MetaFunction = ({ data }: { data: RouteData }) => {
-  if (!data.product) {
+  if (!data || !data.product) {
     return {
       title: "Product not found",
     };
@@ -83,12 +86,9 @@ const meta: MetaFunction = ({ data }: { data: RouteData }) => {
 };
 
 const ProductPage: RouteComponent = () => {
-  let { product, relatedProducts } = useRouteData<RouteData>();
-  let pendingForm = usePendingFormSubmit();
-
-  if (!product) {
-    return <div>Product not found</div>;
-  }
+  let { product, relatedProducts } = useLoaderData<RouteData>();
+  let transition = useTransition();
+  let pendingForm = transition.submission;
 
   let variantId = product.variants.edges[0].node.id;
   let image = product.images.edges[0].node;
@@ -235,5 +235,13 @@ const ProductPage: RouteComponent = () => {
   );
 };
 
+function CatchBoundary() {
+  let caught = useCatch();
+
+  if (caught.status === 404) {
+    return <div className="py-4 text-xl text-center">Product not found</div>;
+  }
+}
+
 export default ProductPage;
-export { action, headers, loader, meta };
+export { action, headers, loader, meta, CatchBoundary };

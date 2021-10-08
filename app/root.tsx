@@ -1,12 +1,12 @@
-import type { LinksFunction } from "remix";
-import { Meta, Links, Scripts, LiveReload } from "remix";
+import type { ErrorBoundaryComponent, LinksFunction } from "remix";
+import { Meta, Links, Scripts, LiveReload, useCatch } from "remix";
 import { Outlet } from "react-router-dom";
 
 import tailwindUrl from "./styles/tailwind.css";
 import { Header } from "./components/header";
 import { Footer } from "./components/footer";
 
-export let links: LinksFunction = () => {
+let links: LinksFunction = () => {
   return [
     { rel: "stylesheet", href: tailwindUrl },
     {
@@ -34,7 +34,7 @@ function Document({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
+function App() {
   return (
     <Document>
       <Header />
@@ -44,7 +44,7 @@ export default function App() {
   );
 }
 
-export function ErrorBoundary({ error }: { error: Error }) {
+const ErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
   return (
     <Document>
       <h1>App Error</h1>
@@ -55,4 +55,28 @@ export function ErrorBoundary({ error }: { error: Error }) {
       </p>
     </Document>
   );
-}
+};
+
+const CatchBoundary: React.VFC = () => {
+  let caught = useCatch();
+
+  switch (caught.status) {
+    case 401:
+    case 404:
+      return (
+        <Document>
+          <h1>
+            {caught.status} {caught.statusText}
+          </h1>
+        </Document>
+      );
+
+    default:
+      throw new Error(
+        `Unexpected caught response with status: ${caught.status}`
+      );
+  }
+};
+
+export default App;
+export { links, ErrorBoundary, CatchBoundary };
