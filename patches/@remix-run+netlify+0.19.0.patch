@@ -1,8 +1,8 @@
 diff --git a/node_modules/@remix-run/netlify/server.js b/node_modules/@remix-run/netlify/server.js
-index b8a5db2..87e9fae 100644
+index b8a5db2..e79789c 100644
 --- a/node_modules/@remix-run/netlify/server.js
 +++ b/node_modules/@remix-run/netlify/server.js
-@@ -27,15 +27,9 @@ function createRequestHandler({
+@@ -27,15 +27,11 @@ function createRequestHandler({
    };
  }
  function createRemixRequest(event) {
@@ -15,9 +15,11 @@ index b8a5db2..87e9fae 100644
 -    let rawPath = getRawPath(event);
 -    url = new URL(rawPath, `http://${origin}`);
 -  }
++  console.log('patched!');
 +  let origin = event.headers.host;
 +  let rawPath = getRawPath(event);
 +  let url = new URL(rawPath, `http://${origin}`);
++  console.log(url);
  
    let init = {
      method: event.httpMethod,
