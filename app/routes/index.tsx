@@ -36,8 +36,7 @@ let loader: LoaderFunction = async () => {
     { products },
     {
       headers: {
-        "Cache-Control":
-          "max-age=60, s-maxage=3600, stale-while-revalidate=604800",
+        "Cache-Control": ""
       },
     }
   );
