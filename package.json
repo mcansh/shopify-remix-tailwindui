@@ -19,6 +19,7 @@
     "@mcansh/fetcher": "0.2.2",
     "@netlify/functions": "0.7.2",
     "@remix-run/netlify": "0.19.2",
+    "@remix-run/node": "0.19.2",
     "@remix-run/react": "0.19.2",
     "date-fns": "2.25.0",
     "graphql": "15.6.1",
