@@ -11,6 +11,7 @@ import { json } from "remix-utils";
 import tailwindUrl from "./styles/tailwind.css";
 import { Header } from "./components/header";
 import { Footer } from "./components/footer";
+import { commitSession, getSession } from "./session.server";
 
 let links: LinksFunction = () => {
   return [
@@ -26,10 +27,24 @@ interface RouteData {
   js: boolean;
 }
 
-let loader: LoaderFunction = ({ request }) => {
+let loader: LoaderFunction = async ({ request }) => {
+  let session = await getSession(request.headers.get("Cookie"));
   let url = new URL(request.url);
-  let js = url.searchParams.has("js");
-  return json<RouteData>({ js });
+
+  let enableJS: boolean = false;
+
+  if (url.searchParams.has("js")) {
+    let js = url.searchParams.get("js") === "1";
+    enableJS = js;
+    session.set("js", enableJS);
+  } else {
+    enableJS = session.get("js");
+  }
+
+  return json<RouteData>(
+    { js: enableJS },
+    { headers: { "Set-Cookie": await commitSession(session) } }
+  );
 };
 
 interface DocumentProps {

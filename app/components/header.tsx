@@ -1,4 +1,5 @@
 import { SearchIcon } from "@heroicons/react/outline";
+import { Link } from "remix";
 
 const Header: React.VFC = () => {
   return (
@@ -6,7 +7,7 @@ const Header: React.VFC = () => {
       <div className="px-4 border-b border-gray-200 sm:px-0">
         <div className="flex items-center justify-between h-16">
           <div className="flex flex-1">
-            <a href="/">
+            <Link prefetch="intent" to="/">
               <span className="sr-only">Digital Design Assets</span>
               <svg
                 className="w-8 h-8 text-purple-600"
@@ -21,7 +22,7 @@ const Header: React.VFC = () => {
                   fill="currentColor"
                 ></path>
               </svg>
-            </a>
+            </Link>
           </div>
           <div className="flex items-center justify-end flex-1">
             <a href="#" className="p-2 text-gray-400 hover:text-gray-500">
