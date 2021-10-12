@@ -1,6 +1,6 @@
 [functions]
   directory = "netlify/functions"
-  node_bundler = "zisi"
+  node_bundler = "esbuild"
 
 [build]
   publish = "public"

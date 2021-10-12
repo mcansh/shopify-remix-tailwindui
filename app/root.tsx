@@ -2,6 +2,7 @@ import {
   ErrorBoundaryComponent,
   LinksFunction,
   LoaderFunction,
+  MetaFunction,
   useLoaderData,
 } from "remix";
 import { Meta, Links, Scripts, LiveReload, useCatch } from "remix";
@@ -9,8 +10,6 @@ import { Outlet } from "react-router-dom";
 import { json } from "remix-utils";
 
 import tailwindUrl from "./styles/tailwind.css";
-import { Header } from "./components/header";
-import { Footer } from "./components/footer";
 import { commitSession, getSession } from "./session.server";
 
 let links: LinksFunction = () => {
@@ -20,8 +19,17 @@ let links: LinksFunction = () => {
       rel: "stylesheet",
       href: "https://rsms.me/inter/inter.css",
     },
+    {
+      rel: "icon",
+      href: "/favicon.png",
+      type: "image/png",
+    },
   ];
 };
+
+let meta: MetaFunction = () => ({
+  viewport: "width=device-width, initial-scale=1.0",
+});
 
 interface RouteData {
   js: boolean;
@@ -49,15 +57,15 @@ let loader: LoaderFunction = async ({ request }) => {
 
 interface DocumentProps {
   enableJS?: boolean;
+  title?: string;
 }
 
-const Document: React.FC<DocumentProps> = ({ children, enableJS }) => {
+const Document: React.FC<DocumentProps> = ({ children, enableJS, title }) => {
   return (
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
-        <link rel="icon" href="/favicon.png" type="image/png" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        {title && <title>{title}</title>}
         <Meta />
         <Links />
       </head>
@@ -74,16 +82,14 @@ function App() {
   let data = useLoaderData<RouteData>();
   return (
     <Document enableJS={data.js}>
-      <Header />
       <Outlet />
-      <Footer />
     </Document>
   );
 }
 
 const ErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
   return (
-    <Document>
+    <Document title="oh shiz">
       <h1>App Error</h1>
       <pre>{error.message}</pre>
       <p>
@@ -101,7 +107,7 @@ const CatchBoundary: React.VFC = () => {
     case 401:
     case 404:
       return (
-        <Document>
+        <Document title={`${caught.status} ${caught.statusText}`}>
           <h1>
             {caught.status} {caught.statusText}
           </h1>
@@ -116,4 +122,4 @@ const CatchBoundary: React.VFC = () => {
 };
 
 export default App;
-export { loader, links, ErrorBoundary, CatchBoundary };
+export { loader, links, meta, ErrorBoundary, CatchBoundary };
