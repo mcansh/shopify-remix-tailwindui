@@ -11,6 +11,8 @@ import { json } from "remix-utils";
 
 import tailwindUrl from "./styles/tailwind.css";
 import { commitSession, getSession } from "./session.server";
+import { Header } from "./components/header";
+import { Footer } from "./components/footer";
 
 let links: LinksFunction = () => {
   return [
@@ -82,7 +84,9 @@ function App() {
   let data = useLoaderData<RouteData>();
   return (
     <Document enableJS={data.js}>
+      <Header />
       <Outlet />
+      <Footer />
     </Document>
   );
 }
