@@ -35,7 +35,7 @@ let loader: LoaderFunction = async () => {
     { products },
     {
       headers: {
-        "Cache-Control": "",
+        "Cache-Control": "public, s-maxage=3600",
       },
     }
   );
