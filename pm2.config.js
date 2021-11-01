@@ -1,10 +1,13 @@
+const dotenv = require("dotenv");
+
+let { error, parsed } = dotenv.config();
+
+if (error) {
+  throw error;
+}
+
 module.exports = {
   apps: [
-    {
-      name: "Netlify",
-      script: "netlify dev",
-      ignore_watch: ["."],
-    },
     {
       name: "Tailwind",
       script: "npm run dev:css",
@@ -14,6 +17,9 @@ module.exports = {
       name: "Remix",
       script: "npm run dev:remix",
       ignore_watch: ["."],
+      env: {
+        ...parsed,
+      },
     },
   ],
 };
