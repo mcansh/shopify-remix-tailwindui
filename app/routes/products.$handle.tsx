@@ -36,14 +36,7 @@ const loader: LoaderFunction = async ({ params }) => {
     .filter((item) => item.node.handle !== params.handle)
     .slice(0, 4);
 
-  return json<RouteData>(
-    { product: productByHandle, relatedProducts },
-    {
-      headers: {
-        "Cache-Control": "public, s-maxage=3600",
-      },
-    }
-  );
+  return json<RouteData>({ product: productByHandle, relatedProducts });
 };
 
 let action: ActionFunction = async ({ request }) => {

@@ -31,14 +31,7 @@ let loader: LoaderFunction = async () => {
   let sdk = getSdk(storefront);
   let { products } = await sdk.Products();
 
-  return json(
-    { products },
-    {
-      headers: {
-        "Cache-Control": "public, s-maxage=3600",
-      },
-    }
-  );
+  return json({ products });
 };
 
 let headers: HeadersFunction = ({ loaderHeaders }) => {
