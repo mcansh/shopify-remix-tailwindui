@@ -13,6 +13,7 @@
     "build:remix": "remix build",
     "build:worker": "esbuild --bundle --sourcemap --format=esm --outfile=dist/worker.mjs ./worker",
     "build": "run-s codegen build:*",
+    "predev": "npm run setup:local",
     "dev": "pm2-dev pm2.config.js",
     "dev:remix": "remix dev",
     "dev:css": "tailwindcss --output ./app/styles/tailwind.css --watch --postcss",
