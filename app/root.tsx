@@ -34,7 +34,7 @@ let meta: MetaFunction = () => ({
 });
 
 interface RouteData {
-  js: boolean;
+  enableJS: boolean;
 }
 
 let loader: LoaderFunction = async ({ request }) => {
@@ -52,7 +52,7 @@ let loader: LoaderFunction = async ({ request }) => {
   }
 
   return json<RouteData>(
-    { js: enableJS },
+    { enableJS },
     { headers: { "Set-Cookie": await commitSession(session) } }
   );
 };
@@ -83,7 +83,7 @@ const Document: React.FC<DocumentProps> = ({ children, enableJS, title }) => {
 function App() {
   let data = useLoaderData<RouteData>();
   return (
-    <Document enableJS={data.js}>
+    <Document enableJS={data.enableJS}>
       <Header />
       <Outlet />
       <Footer />
