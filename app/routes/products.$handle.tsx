@@ -40,7 +40,7 @@ const loader: LoaderFunction = async ({ params }) => {
     { product: productByHandle, relatedProducts },
     {
       headers: {
-        "Cache-Control": ""
+        "Cache-Control": "public, s-maxage=3600",
       },
     }
   );
