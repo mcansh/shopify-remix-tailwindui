@@ -12,3 +12,4 @@ generates:
       - "typescript-graphql-request"
     config:
       useTypeImports: true
+      gqlImport: ../lib/gql#gql
