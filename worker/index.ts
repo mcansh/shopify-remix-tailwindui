@@ -1,11 +1,10 @@
 import { createFetchHandler } from "./single-worker-remix-loader";
+import type { GetLoadContextFunction } from "./single-worker-remix-loader";
 
 // @ts-ignore
 import * as build from "../build";
 
-const handleFetch = createFetchHandler({
-  build,
-});
+const handleFetch = createFetchHandler({ build });
 
 export default {
   async fetch(

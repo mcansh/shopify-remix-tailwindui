@@ -1,25 +1,34 @@
-import type { ServerBuild, AppLoadContext } from "@remix-run/server-runtime";
-import { createRequestHandler as createRemixRequestHandler } from "@remix-run/server-runtime";
+import { createRequestHandler as _createRequestHandler } from "@remix-run/cloudflare-workers";
+import serverRuntime, {
+  ServerBuild,
+  AppLoadContext,
+} from "@remix-run/server-runtime";
 
-interface CreateRequestHandlerParams {
-  build: ServerBuild;
-  getLoadContext?: ({
+export interface GetLoadContextFunction<Env = Record<string, unknown>> {
+  ({
     request,
+    env,
+    context,
   }: {
     request: Request;
-    env: SingleWorker.Env;
+    env: Env;
     context: SingleWorker.Context;
-  }) => AppLoadContext;
+  }): AppLoadContext;
+}
+
+interface CreateRequestHandlerParams<Env> {
+  build: ServerBuild;
+  getLoadContext?: GetLoadContextFunction<Env>;
   mode?: string;
 }
 
-const createRequestHandler = ({
+const createRequestHandler = <Env>({
   build,
   getLoadContext,
   mode,
-}: CreateRequestHandlerParams) => {
+}: CreateRequestHandlerParams<Env>) => {
   let platform = {};
-  let handleRequest = createRemixRequestHandler(build, platform, mode);
+  let handleRequest = serverRuntime.createRequestHandler(build, platform, mode);
 
   return ({
     request,
@@ -27,7 +36,7 @@ const createRequestHandler = ({
     context,
   }: {
     request: Request;
-    env: SingleWorker.Env;
+    env: Env;
     context: SingleWorker.Context;
   }) => {
     let loadContext =
@@ -49,12 +58,12 @@ const handleAsset = async ({
   if (response.ok) return response;
 };
 
-export const createFetchHandler = ({
+export const createFetchHandler = <Env = Record<string, unknown>>({
   build,
   getLoadContext,
   mode,
-}: CreateRequestHandlerParams) => {
-  const handleRequest = createRequestHandler({
+}: CreateRequestHandlerParams<Env>) => {
+  const handleRequest = createRequestHandler<SingleWorker.Env<Env>>({
     build,
     getLoadContext,
     mode,
@@ -62,7 +71,7 @@ export const createFetchHandler = ({
 
   const handleFetch = async (
     request: Request,
-    env: SingleWorker.Env,
+    env: SingleWorker.Env<Env>,
     context: SingleWorker.Context
   ) => {
     let response = await handleAsset({ request, env });
@@ -76,7 +85,7 @@ export const createFetchHandler = ({
 
   return async (
     request: Request,
-    env: SingleWorker.Env,
+    env: SingleWorker.Env<Env>,
     context: SingleWorker.Context
   ) => {
     try {
