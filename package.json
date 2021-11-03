@@ -11,7 +11,7 @@
     "prebuild": "npm run setup:worker",
     "build:css": "tailwindcss --output ./app/styles/tailwind.css --minify --postcss",
     "build:remix": "remix build",
-    "build:worker": "esbuild --bundle --minify --define:process.env.NODE_ENV=production --sourcemap --format=esm --outfile=dist/worker.mjs ./worker",
+    "build:worker": "esbuild --bundle --minify --define:process.env.NODE_ENV=production --format=esm --outfile=dist/worker.mjs ./worker",
     "build": "run-s codegen build:*",
     "predev": "npm run setup:local",
     "dev": "pm2-dev pm2.config.js",
