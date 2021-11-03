@@ -1,8 +1,8 @@
 module.exports = {
   apps: [
     {
-      name: "Netlify",
-      script: "netlify dev",
+      name: "Vercel",
+      script: "vercel dev",
       ignore_watch: ["."],
     },
     {

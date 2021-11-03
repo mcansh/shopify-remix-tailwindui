@@ -1,8 +1,10 @@
 /node_modules
 /.cache
-/netlify/functions/server/build
+/api/build
 /public/build
 /app/styles/tailwind.css
 .env
-/.netlify
+/.vercel
 app/graphql/index.ts
+
+.vercel
