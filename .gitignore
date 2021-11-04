@@ -1,8 +1,8 @@
 /node_modules
 /.cache
-/netlify/functions/server/build
+/build
+/dist
 /public/build
 /app/styles/tailwind.css
 .env
-/.netlify
 app/graphql/index.ts
