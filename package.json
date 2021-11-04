@@ -9,7 +9,7 @@
     "setup:local": "remix setup node",
     "build:css": "tailwindcss --output ./app/styles/tailwind.css --minify --postcss",
     "build:remix": "remix build",
-    "build:worker": "esbuild --bundle --sourcemap --format=esm --outfile=dist/worker.mjs ./worker",
+    "build:worker": "esbuild --define:process.env.NODE_ENV=\\\"production\\\" --define:process.env.API_URL=API_URL --define:process.env.ACCESS_TOKEN=ACCESS_TOKEN --define:process.env.SESSION_SECRET=SESSION_SECRET --bundle --sourcemap --format=esm --outfile=dist/worker.mjs ./worker",
     "prebuild:worker": "npm run setup:worker",
     "build": "run-s codegen build:*",
     "predev": "npm run setup:local",
