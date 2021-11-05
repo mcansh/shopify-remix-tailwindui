@@ -35,6 +35,8 @@ const Header: React.VFC<Props> = ({ enableJS }) => {
             <Form
               action={location.pathname === "/" ? "/?index" : location.pathname}
               method="post"
+              replace
+              reloadDocument
             >
               <input type="hidden" name="returnTo" value={location.pathname} />
               <label>
