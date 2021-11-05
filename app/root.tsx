@@ -1,8 +1,10 @@
 import {
+  ActionFunction,
   ErrorBoundaryComponent,
   LinksFunction,
   LoaderFunction,
   MetaFunction,
+  redirect,
   useLoaderData,
 } from "remix";
 import { Meta, Links, Scripts, LiveReload, useCatch } from "remix";
@@ -66,6 +68,20 @@ let loader: LoaderFunction = async ({ request }) => {
   });
 };
 
+let action: ActionFunction = async ({ request }) => {
+  let session = await getSession(request.headers.get("Cookie"));
+  let requestBody = await request.text();
+  let formData = new URLSearchParams(requestBody);
+  let enableJS = formData.get("enableJS") === "true";
+  let returnTo = formData.get("returnTo");
+  session.set("js", enableJS);
+  return redirect(returnTo ?? "/", {
+    headers: {
+      "Set-Cookie": await commitSession(session),
+    },
+  });
+};
+
 interface DocumentProps {
   enableJS?: boolean;
   title?: string;
@@ -93,7 +109,7 @@ function App() {
   let data = useLoaderData<RouteData>();
   return (
     <Document enableJS={data.enableJS}>
-      <Header />
+      <Header enableJS={data.enableJS} />
       <Outlet />
       <Footer />
     </Document>
@@ -135,4 +151,4 @@ const CatchBoundary: React.VFC = () => {
 };
 
 export default App;
-export { loader, links, meta, ErrorBoundary, CatchBoundary };
+export { action, links, loader, meta, ErrorBoundary, CatchBoundary };

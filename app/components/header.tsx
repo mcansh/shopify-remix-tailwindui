@@ -1,12 +1,21 @@
-import { SearchIcon } from "@heroicons/react/outline";
-import { Link } from "remix";
+import { CheckCircleIcon, SearchIcon } from "@heroicons/react/outline";
+import { useLocation } from "react-router-dom";
+import { Form, Link } from "remix";
 
-const Header: React.VFC = () => {
+interface Props {
+  enableJS: boolean;
+}
+
+const Header: React.VFC<Props> = ({ enableJS }) => {
+  let location = useLocation();
+
+  console.log({ enableJS });
+
   return (
     <header className="mx-auto max-w-7xl sm:px-6 lg:px-8">
       <div className="px-4 border-b border-gray-200 sm:px-0">
         <div className="flex items-center justify-between h-16">
-          <div className="flex flex-1">
+          <div className="flex">
             <Link prefetch="intent" to="/">
               <span className="sr-only">Digital Design Assets</span>
               <svg
@@ -24,7 +33,36 @@ const Header: React.VFC = () => {
               </svg>
             </Link>
           </div>
-          <div className="flex items-center justify-end flex-1">
+          <div className="flex items-center justify-end">
+            <Form action="/" method="post">
+              <input type="hidden" name="returnTo" value={location.pathname} />
+              <label>
+                <input
+                  name="enableJS"
+                  defaultValue={String(!enableJS)}
+                  className="sr-only"
+                />
+                <button type="submit" className="flex items-center">
+                  {enableJS ? (
+                    <CheckCircleIcon className="w-6 h-6 text-purple-500" />
+                  ) : (
+                    <svg
+                      className="w-6 h-6 text-purple-500"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      aria-hidden="true"
+                    >
+                      <circle cx="12" cy="12" r="9" stroke-width="2" />
+                    </svg>
+                  )}
+                  <span className="ml-2 text-sm text-gray-600">
+                    Enable JavaScript?
+                  </span>
+                </button>
+              </label>
+            </Form>
             <a href="#" className="p-2 text-gray-400 hover:text-gray-500">
               <span className="sr-only">Search</span>
               <SearchIcon className="w-6 h-6" />
