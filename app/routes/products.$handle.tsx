@@ -9,7 +9,6 @@ import {
   useTransition,
 } from "remix";
 import { Form, Link, redirect } from "remix";
-import { json } from "remix-utils/server";
 import { format, parseISO } from "date-fns";
 
 import { formatMoney } from "~/lib/format-money";
@@ -36,7 +35,13 @@ const loader: LoaderFunction = async ({ params }) => {
     .filter((item) => item.node.handle !== params.handle)
     .slice(0, 4);
 
-  return json<RouteData>({ product: productByHandle, relatedProducts });
+  let data: RouteData = { product: productByHandle, relatedProducts };
+
+  return new Response(JSON.stringify(data), {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 };
 
 let action: ActionFunction = async ({ request }) => {

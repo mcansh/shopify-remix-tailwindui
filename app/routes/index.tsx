@@ -6,7 +6,6 @@ import type {
   RouteComponent,
 } from "remix";
 import { Link, useLoaderData } from "remix";
-import { json } from "remix-utils/server";
 
 import { formatMoney } from "~/lib/format-money";
 import stylesUrl from "~/styles/index.css";
@@ -32,7 +31,11 @@ let loader: LoaderFunction = async () => {
   let sdk = getSdk(storefront);
   let { products } = await sdk.Products();
 
-  return json<RouteData>({ products });
+  let data: RouteData = { products };
+  return new Response(JSON.stringify(data), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
 };
 
 let headers: HeadersFunction = ({ loaderHeaders }) => {

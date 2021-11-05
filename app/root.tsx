@@ -7,7 +7,6 @@ import {
 } from "remix";
 import { Meta, Links, Scripts, LiveReload, useCatch } from "remix";
 import { Outlet } from "react-router-dom";
-import { json } from "remix-utils/server";
 
 import tailwindUrl from "./styles/tailwind.css";
 import { commitSession, getSession } from "./session.server";
@@ -51,10 +50,16 @@ let loader: LoaderFunction = async ({ request }) => {
     enableJS = session.get("js");
   }
 
-  return json<RouteData>(
-    { enableJS },
-    { headers: { "Set-Cookie": await commitSession(session) } }
-  );
+  let data: RouteData = {
+    enableJS,
+  };
+
+  return new Response(JSON.stringify(data), {
+    headers: {
+      "Set-Cookie": await commitSession(session),
+      "Content-Type": "application/json",
+    },
+  });
 };
 
 interface DocumentProps {
