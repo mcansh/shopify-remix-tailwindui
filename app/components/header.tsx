@@ -9,8 +9,6 @@ interface Props {
 const Header: React.VFC<Props> = ({ enableJS }) => {
   let location = useLocation();
 
-  console.log({ enableJS });
-
   return (
     <header className="mx-auto max-w-7xl sm:px-6 lg:px-8">
       <div className="px-4 border-b border-gray-200 sm:px-0">
@@ -34,7 +32,10 @@ const Header: React.VFC<Props> = ({ enableJS }) => {
             </Link>
           </div>
           <div className="flex items-center justify-end">
-            <Form action="/" method="post">
+            <Form
+              action={location.pathname === "/" ? "/?index" : location.pathname}
+              method="post"
+            >
               <input type="hidden" name="returnTo" value={location.pathname} />
               <label>
                 <input

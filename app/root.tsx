@@ -4,7 +4,6 @@ import {
   LinksFunction,
   LoaderFunction,
   MetaFunction,
-  redirect,
   useLoaderData,
 } from "remix";
 import { Meta, Links, Scripts, LiveReload, useCatch } from "remix";
@@ -64,20 +63,6 @@ let loader: LoaderFunction = async ({ request }) => {
     headers: {
       "Set-Cookie": await commitSession(session),
       "Content-Type": "application/json",
-    },
-  });
-};
-
-let action: ActionFunction = async ({ request }) => {
-  let session = await getSession(request.headers.get("Cookie"));
-  let requestBody = await request.text();
-  let formData = new URLSearchParams(requestBody);
-  let enableJS = formData.get("enableJS") === "true";
-  let returnTo = formData.get("returnTo");
-  session.set("js", enableJS);
-  return redirect(returnTo ?? "/", {
-    headers: {
-      "Set-Cookie": await commitSession(session),
     },
   });
 };
@@ -151,4 +136,4 @@ const CatchBoundary: React.VFC = () => {
 };
 
 export default App;
-export { action, links, loader, meta, ErrorBoundary, CatchBoundary };
+export { links, loader, meta, ErrorBoundary, CatchBoundary };

@@ -1,8 +1,9 @@
-import type {
-  HeadersFunction,
+import {
+  ActionFunction,
   LinksFunction,
   LoaderFunction,
   MetaFunction,
+  redirect,
   RouteComponent,
 } from "remix";
 import { Link, useLoaderData } from "remix";
@@ -11,6 +12,7 @@ import { formatMoney } from "~/lib/format-money";
 import stylesUrl from "~/styles/index.css";
 import { getSdk, ProductsQuery } from "~/graphql";
 import { storefront } from "~/lib/storefront.server";
+import { getSession, commitSession } from "~/session.server";
 
 let meta: MetaFunction = () => {
   return {
@@ -38,10 +40,18 @@ let loader: LoaderFunction = async () => {
   });
 };
 
-let headers: HeadersFunction = ({ loaderHeaders }) => {
-  return {
-    "Cache-Control": loaderHeaders.get("Cache-Control") ?? "",
-  };
+const action: ActionFunction = async ({ request }) => {
+  let session = await getSession(request.headers.get("Cookie"));
+  let requestBody = await request.text();
+  let formData = new URLSearchParams(requestBody);
+  let enableJS = formData.get("enableJS") === "true";
+  let returnTo = formData.get("returnTo");
+  session.set("js", enableJS);
+  return redirect(returnTo ?? "/", {
+    headers: {
+      "Set-Cookie": await commitSession(session),
+    },
+  });
 };
 
 const Index: RouteComponent = () => {
@@ -112,4 +122,4 @@ const Index: RouteComponent = () => {
 };
 
 export default Index;
-export { headers, links, loader, meta };
+export { action, links, loader, meta };

@@ -1,6 +1,5 @@
 import {
   ActionFunction,
-  HeadersFunction,
   LoaderFunction,
   MetaFunction,
   RouteComponent,
@@ -14,6 +13,7 @@ import { format, parseISO } from "date-fns";
 import { formatMoney } from "~/lib/format-money";
 import { storefront } from "~/lib/storefront.server";
 import { getSdk, ProductByHandleQuery, ProductsQuery } from "~/graphql";
+import { commitSession, getSession } from "~/session.server";
 
 type RouteData = {
   product: NonNullable<ProductByHandleQuery["productByHandle"]>;
@@ -45,8 +45,21 @@ const loader: LoaderFunction = async ({ params }) => {
 };
 
 let action: ActionFunction = async ({ request }) => {
-  let body = await request.text();
-  let formData = new URLSearchParams(body);
+  let session = await getSession(request.headers.get("Cookie"));
+  let requestBody = await request.text();
+  let formData = new URLSearchParams(requestBody);
+
+  if (formData.has("enableJS")) {
+    let enableJS = formData.get("enableJS") === "true";
+    let returnTo = formData.get("returnTo");
+    session.set("js", enableJS);
+    return redirect(returnTo ?? "/", {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    });
+  }
+
   let variantId = formData.get("variantId");
 
   if (!variantId) {
@@ -62,12 +75,6 @@ let action: ActionFunction = async ({ request }) => {
   }
 
   return redirect(res.checkoutCreate.checkout.webUrl);
-};
-
-let headers: HeadersFunction = ({ loaderHeaders }) => {
-  return {
-    "Cache-Control": loaderHeaders.get("Cache-Control") ?? "",
-  };
 };
 
 const meta: MetaFunction = ({ data }: { data: RouteData }) => {
@@ -239,4 +246,4 @@ function CatchBoundary() {
 }
 
 export default ProductPage;
-export { action, headers, loader, meta, CatchBoundary };
+export { action, loader, meta, CatchBoundary };
