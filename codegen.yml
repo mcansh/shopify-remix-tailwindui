@@ -12,4 +12,7 @@ generates:
       - "typescript-graphql-request"
     config:
       useTypeImports: true
+      enumsAsTypes: true
+      declarationKind: "interface"
+      skipTypename: true
       gqlImport: ../lib/gql#gql
