@@ -9,17 +9,17 @@ import {
   useTransition,
 } from "remix";
 import { Form, Link, redirect } from "remix";
-import { json } from "remix-utils";
+import { json } from "remix-utils/server";
 import { format, parseISO } from "date-fns";
 
 import { formatMoney } from "~/lib/format-money";
 import { storefront } from "~/lib/storefront.server";
 import { getSdk, ProductByHandleQuery, ProductsQuery } from "~/graphql";
 
-interface RouteData {
+type RouteData = {
   product: NonNullable<ProductByHandleQuery["productByHandle"]>;
   relatedProducts: ProductsQuery["products"]["edges"];
-}
+};
 
 const loader: LoaderFunction = async ({ params }) => {
   let sdk = getSdk(storefront);

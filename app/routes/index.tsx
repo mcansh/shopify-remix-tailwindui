@@ -6,7 +6,7 @@ import type {
   RouteComponent,
 } from "remix";
 import { Link, useLoaderData } from "remix";
-import { json } from "remix-utils";
+import { json } from "remix-utils/server";
 
 import { formatMoney } from "~/lib/format-money";
 import stylesUrl from "~/styles/index.css";
@@ -24,9 +24,9 @@ let links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: stylesUrl }];
 };
 
-interface RouteData {
+type RouteData = {
   products: ProductsQuery["products"];
-}
+};
 
 let loader: LoaderFunction = async () => {
   let sdk = getSdk(storefront);

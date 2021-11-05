@@ -7,7 +7,7 @@ import {
 } from "remix";
 import { Meta, Links, Scripts, LiveReload, useCatch } from "remix";
 import { Outlet } from "react-router-dom";
-import { json } from "remix-utils";
+import { json } from "remix-utils/server";
 
 import tailwindUrl from "./styles/tailwind.css";
 import { commitSession, getSession } from "./session.server";
@@ -33,9 +33,9 @@ let meta: MetaFunction = () => ({
   viewport: "width=device-width, initial-scale=1.0",
 });
 
-interface RouteData {
+type RouteData = {
   enableJS: boolean;
-}
+};
 
 let loader: LoaderFunction = async ({ request }) => {
   let session = await getSession(request.headers.get("Cookie"));
