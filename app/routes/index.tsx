@@ -5,7 +5,8 @@ import type {
   MetaFunction,
   RouteComponent,
 } from "remix";
-import { Link, json, useLoaderData } from "remix";
+import { Link, useLoaderData } from "remix";
+import { json } from "remix-utils";
 
 import { formatMoney } from "~/lib/format-money";
 import stylesUrl from "~/styles/index.css";
@@ -31,7 +32,7 @@ let loader: LoaderFunction = async () => {
   let sdk = getSdk(storefront);
   let { products } = await sdk.Products();
 
-  return json({ products });
+  return json<RouteData>({ products });
 };
 
 let headers: HeadersFunction = ({ loaderHeaders }) => {
