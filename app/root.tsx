@@ -42,12 +42,16 @@ let loader: LoaderFunction = async ({ request }) => {
 
   let enableJS: boolean = false;
 
+  // check if the user requested js
+  // only set the session if the user requested js
   if (url.searchParams.has("js")) {
     let js = url.searchParams.get("js") === "1";
     enableJS = js;
     session.set("js", enableJS);
-  } else {
+  } else if (session.has("js")) {
     enableJS = session.get("js");
+  } else {
+    enableJS = false;
   }
 
   let data: RouteData = {
