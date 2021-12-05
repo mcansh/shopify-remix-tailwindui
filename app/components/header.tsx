@@ -1,6 +1,5 @@
 import { CheckCircleIcon, SearchIcon } from "@heroicons/react/outline";
-import { useLocation } from "react-router-dom";
-import { Form, Link } from "remix";
+import { Form, Link, useLocation } from "remix";
 
 interface Props {
   enableJS: boolean;

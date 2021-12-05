@@ -6,8 +6,7 @@ import {
   MetaFunction,
   useLoaderData,
 } from "remix";
-import { Meta, Links, Scripts, LiveReload, useCatch } from "remix";
-import { Outlet } from "react-router-dom";
+import { Meta, Links, Scripts, LiveReload, Outlet, useCatch } from "remix";
 
 import tailwindUrl from "./styles/tailwind.css";
 import { commitSession, getSession } from "./session.server";
