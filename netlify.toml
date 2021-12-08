@@ -1,13 +1,11 @@
-[functions]
-  directory = "netlify/functions"
-  node_bundler = "esbuild"
-
 [build]
   publish = "public"
   command = "npm run build"
+  functions = "netlify/functions"
 
 [dev]
   publish = "public"
+  command = "remix watch"
   port = 3000
 
 [context.dev]

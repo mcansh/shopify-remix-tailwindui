@@ -56,7 +56,7 @@ const Header: React.VFC<Props> = ({ enableJS }) => {
                       stroke="currentColor"
                       aria-hidden="true"
                     >
-                      <circle cx="12" cy="12" r="9" stroke-width="2" />
+                      <circle cx="12" cy="12" r="9" strokeWidth="2" />
                     </svg>
                   )}
                   <span className="ml-2 text-sm text-gray-600">
