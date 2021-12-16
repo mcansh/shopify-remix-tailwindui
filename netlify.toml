@@ -4,9 +4,9 @@
   functions = "netlify/functions"
 
 [dev]
-  publish = "public"
   command = "remix watch"
   port = 3000
+  autoLaunch = false
 
 [context.dev]
   environment = { NODE_ENV = "development" }

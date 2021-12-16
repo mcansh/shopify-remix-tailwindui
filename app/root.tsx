@@ -101,6 +101,8 @@ function App() {
 }
 
 const ErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
+  console.log(error);
+
   return (
     <Document title="oh shiz">
       <h1>App Error</h1>
