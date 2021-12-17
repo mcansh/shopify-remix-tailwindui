@@ -2,13 +2,13 @@ import type * as React from "react";
 import { Link } from "remix";
 import clsx from "clsx";
 
-import type { ProductEdge } from "~/graphql";
+import type { ProductsQuery } from "~/graphql";
 import { formatMoney } from "~/lib/format-money";
 
 import { ProductTag } from "./tag";
 
 interface Props {
-  product: ProductEdge;
+  product: ProductsQuery["products"]["edges"][number];
   noNameTag?: boolean;
   variant?: "default" | "slim" | "simple";
   imgProps?: {
