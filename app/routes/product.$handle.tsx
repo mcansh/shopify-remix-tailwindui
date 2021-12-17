@@ -116,12 +116,6 @@ const ProductPage: RouteComponent = () => {
               <h2 id="information-heading" className="sr-only">
                 Product information
               </h2>
-              <p className="mt-2 text-sm text-gray-500">
-                {product.tags.join(", ")} · Updated{" "}
-                <time dateTime={product.updatedAt}>
-                  {format(parseISO(product.updatedAt), "dd MMM yyyy")}
-                </time>
-              </p>
             </div>
           </div>
           <p className="mt-6 text-gray-500">{product.description}</p>
@@ -214,7 +208,7 @@ const ProductPage: RouteComponent = () => {
                 </div>
                 <div className="flex items-center justify-between mt-4 space-x-8 text-base font-medium text-gray-900">
                   <h3>
-                    <Link to={`/products/${product.handle}`}>
+                    <Link to={`/product/${product.handle}`}>
                       <span aria-hidden="true" className="absolute inset-0" />
                       {product.title}
                     </Link>
@@ -225,9 +219,6 @@ const ProductPage: RouteComponent = () => {
                     )}
                   </p>
                 </div>
-                <p className="mt-1 text-sm text-gray-500">
-                  {product.tags.join(", ")}
-                </p>
               </div>
             );
           })}
