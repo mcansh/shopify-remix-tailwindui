@@ -8,6 +8,7 @@ query Products {
         priceRange {
           minVariantPrice {
             amount
+            currencyCode
           }
         }
         images(first: 4) {

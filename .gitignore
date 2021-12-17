@@ -2,7 +2,7 @@
 /.cache
 /netlify/functions/server/build
 /public/build
-/app/styles/tailwind.css
+/app/styles
 .env
 /.netlify
-app/graphql/index.ts
+/app/graphql/index.ts
