@@ -1,6 +1,7 @@
 import {
   ActionFunction,
   ErrorBoundaryComponent,
+  json,
   LinksFunction,
   LoaderFunction,
   MetaFunction,
@@ -8,14 +9,17 @@ import {
 } from "remix";
 import { Meta, Links, Scripts, LiveReload, Outlet, useCatch } from "remix";
 
-import tailwindUrl from "./styles/tailwind.css";
 import { commitSession, getSession } from "./session.server";
 import { Header } from "./components/header";
-import { Footer } from "./components/footer";
+import tailwindUrl from "./styles/tailwind.css";
+import globalStylesUrl from "./styles/global.css";
+import { CollectionQuery, getSdk, ShopInfoQuery } from "./graphql";
+import { storefront } from "./lib/storefront.server";
 
 let links: LinksFunction = () => {
   return [
     { rel: "stylesheet", href: tailwindUrl },
+    { rel: "stylesheet", href: globalStylesUrl },
     {
       rel: "stylesheet",
       href: "https://rsms.me/inter/inter.css",
@@ -28,12 +32,10 @@ let links: LinksFunction = () => {
   ];
 };
 
-let meta: MetaFunction = () => ({
-  viewport: "width=device-width, initial-scale=1.0",
-});
-
 type RouteData = {
   enableJS: boolean;
+  shopInfo: ShopInfoQuery["shop"];
+  collections: CollectionQuery["collections"];
 };
 
 let loader: LoaderFunction = async ({ request }) => {
@@ -54,16 +56,35 @@ let loader: LoaderFunction = async ({ request }) => {
     enableJS = false;
   }
 
+  let sdk = getSdk(storefront);
+  let { shop } = await sdk.ShopInfo();
+  let { collections } = await sdk.CollectionQuery();
+
   let data: RouteData = {
     enableJS,
+    shopInfo: shop,
+    collections,
   };
 
-  return new Response(JSON.stringify(data), {
+  return json(data, {
     headers: {
       "Set-Cookie": await commitSession(session),
-      "Content-Type": "application/json",
     },
   });
+};
+
+let meta: MetaFunction = ({ data }: { data: RouteData | undefined }) => {
+  if (!data) {
+    return {
+      viewport: "width=device-width, initial-scale=1.0",
+      title: "Remix Starter",
+    };
+  }
+
+  return {
+    viewport: "width=device-width, initial-scale=1.0",
+    title: data.shopInfo.name,
+  };
 };
 
 interface DocumentProps {
@@ -73,7 +94,7 @@ interface DocumentProps {
 
 const Document: React.FC<DocumentProps> = ({ children, enableJS, title }) => {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="dark">
       <head>
         <meta charSet="utf-8" />
         {title && <title>{title}</title>}
@@ -93,9 +114,8 @@ function App() {
   let data = useLoaderData<RouteData>();
   return (
     <Document enableJS={data.enableJS}>
-      <Header enableJS={data.enableJS} />
+      <Header collections={data.collections} />
       <Outlet />
-      <Footer />
     </Document>
   );
 }

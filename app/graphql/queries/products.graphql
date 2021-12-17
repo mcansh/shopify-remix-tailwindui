@@ -4,13 +4,13 @@ query Products {
       node {
         title
         handle
-        tags
+        description
         priceRange {
           minVariantPrice {
             amount
           }
         }
-        images(first: 1) {
+        images(first: 4) {
           edges {
             node {
               transformedSrc

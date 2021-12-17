@@ -1,8 +1,8 @@
 import {
   ActionFunction,
+  json,
   LinksFunction,
   LoaderFunction,
-  MetaFunction,
   redirect,
   RouteComponent,
 } from "remix";
@@ -14,17 +14,6 @@ import { getSdk, ProductsQuery } from "~/graphql";
 import { storefront } from "~/lib/storefront.server";
 import { getSession, commitSession } from "~/session.server";
 
-let meta: MetaFunction = () => {
-  return {
-    title: "Remix Starter",
-    description: "Welcome to remix!",
-  };
-};
-
-let links: LinksFunction = () => {
-  return [{ rel: "stylesheet", href: stylesUrl }];
-};
-
 type RouteData = {
   products: ProductsQuery["products"];
 };
@@ -34,10 +23,12 @@ let loader: LoaderFunction = async () => {
   let { products } = await sdk.Products();
 
   let data: RouteData = { products };
-  return new Response(JSON.stringify(data), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
+
+  return json(data);
+};
+
+let links: LinksFunction = () => {
+  return [{ rel: "stylesheet", href: stylesUrl }];
 };
 
 const action: ActionFunction = async ({ request }) => {
@@ -109,9 +100,6 @@ const Index: RouteComponent = () => {
                     )}
                   </p>
                 </div>
-                <p className="mt-1 text-sm italic text-gray-500">
-                  {product.tags.join(", ")}
-                </p>
               </Link>
             );
           })}
@@ -122,4 +110,4 @@ const Index: RouteComponent = () => {
 };
 
 export default Index;
-export { action, links, loader, meta };
+export { action, links, loader };

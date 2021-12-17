@@ -16,3 +16,4 @@ generates:
       declarationKind: "interface"
       skipTypename: true
       gqlImport: ../lib/gql#gql
+      dedupeOperationSuffix: true

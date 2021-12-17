@@ -1,0 +1,10 @@
+query CollectionQuery {
+  collections(first: 3) {
+    edges {
+      node {
+        handle
+        title
+      }
+    }
+  }
+}
