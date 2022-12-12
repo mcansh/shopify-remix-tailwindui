@@ -10,6 +10,7 @@ import {
   Meta,
   Outlet,
   Scripts,
+  ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
 
@@ -77,6 +78,7 @@ export default function App() {
         <Footer />
         {data.enableJS && <Scripts />}
         {process.env.NODE_ENV === "development" && <LiveReload />}
+        <ScrollRestoration />
       </body>
     </html>
   );
