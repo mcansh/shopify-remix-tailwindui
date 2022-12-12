@@ -5,5 +5,5 @@
 /app/styles/tailwind.css
 .env
 /.netlify
-app/graphql/index.ts
+app/graphql/index.server.ts
 .eslintcache

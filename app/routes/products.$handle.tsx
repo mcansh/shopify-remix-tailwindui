@@ -12,7 +12,7 @@ import {
 
 import { formatMoney } from "~/lib/format-money";
 import { storefront } from "~/lib/storefront.server";
-import { getSdk } from "~/graphql";
+import { getSdk } from "~/graphql/index.server";
 
 export async function loader({ params }: DataFunctionArgs) {
   let sdk = getSdk(storefront);

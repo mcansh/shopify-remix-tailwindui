@@ -5,7 +5,7 @@ schema:
         X-Shopify-Storefront-Access-Token: ${ACCESS_TOKEN}
 documents: "app/graphql/**/*.graphql"
 generates:
-  app/graphql/index.ts:
+  app/graphql/index.server.ts:
     plugins:
       - "typescript"
       - "typescript-operations"
@@ -15,4 +15,4 @@ generates:
       enumsAsTypes: true
       declarationKind: "interface"
       skipTypename: true
-      gqlImport: ../lib/gql#gql
+      gqlImport: ../lib/gql.server#gql

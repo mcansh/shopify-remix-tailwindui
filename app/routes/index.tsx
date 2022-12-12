@@ -4,7 +4,7 @@ import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 
 import { formatMoney } from "~/lib/format-money";
-import { getSdk } from "~/graphql";
+import { getSdk } from "~/graphql/index.server";
 import { storefront } from "~/lib/storefront.server";
 import { sessionStorage } from "~/session.server";
 
