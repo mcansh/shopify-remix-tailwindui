@@ -1,42 +1,39 @@
 import type {
-  ErrorBoundaryComponent,
+  DataFunctionArgs,
   LinksFunction,
-  LoaderFunction,
   MetaFunction,
-} from "remix";
-import { ActionFunction, useLoaderData } from "remix";
-import { Meta, Links, Scripts, LiveReload, Outlet, useCatch } from "remix";
+} from "@remix-run/node";
+import { json } from "@remix-run/node";
+import {
+  Links,
+  LiveReload,
+  Meta,
+  Outlet,
+  Scripts,
+  useLoaderData,
+} from "@remix-run/react";
 
 import tailwindUrl from "./styles/tailwind.css";
-import { commitSession, getSession } from "./session.server";
+import { sessionStorage } from "./session.server";
 import { Header } from "./components/header";
 import { Footer } from "./components/footer";
 
-let links: LinksFunction = () => {
+export let links: LinksFunction = () => {
   return [
     { rel: "stylesheet", href: tailwindUrl },
-    {
-      rel: "stylesheet",
-      href: "https://rsms.me/inter/inter.css",
-    },
-    {
-      rel: "icon",
-      href: "/favicon.png",
-      type: "image/png",
-    },
+    { rel: "stylesheet", href: "https://rsms.me/inter/inter.css" },
+    { rel: "icon", href: "/favicon.png", type: "image/png" },
   ];
 };
 
-let meta: MetaFunction = () => ({
-  viewport: "width=device-width, initial-scale=1.0",
-});
-
-type RouteData = {
-  enableJS: boolean;
+export let meta: MetaFunction = () => {
+  return {
+    viewport: "width=device-width, initial-scale=1.0",
+  };
 };
 
-let loader: LoaderFunction = async ({ request }) => {
-  let session = await getSession(request.headers.get("Cookie"));
+export async function loader({ request }: DataFunctionArgs) {
+  let session = await sessionStorage.getSession(request.headers.get("Cookie"));
   let url = new URL(request.url);
 
   let enableJS: boolean = false;
@@ -53,85 +50,34 @@ let loader: LoaderFunction = async ({ request }) => {
     enableJS = false;
   }
 
-  let data: RouteData = {
-    enableJS,
-  };
-
-  return new Response(JSON.stringify(data), {
-    headers: {
-      "Set-Cookie": await commitSession(session),
-      "Content-Type": "application/json",
-    },
-  });
-};
+  return json(
+    { enableJS },
+    { headers: { "Set-Cookie": await sessionStorage.commitSession(session) } }
+  );
+}
 
 interface DocumentProps {
   enableJS?: boolean;
   title?: string;
+  children: React.ReactNode;
 }
 
-const Document: React.FC<DocumentProps> = ({ children, enableJS, title }) => {
+export default function App() {
+  let data = useLoaderData<typeof loader>();
   return (
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
-        {title && <title>{title}</title>}
         <Meta />
         <Links />
       </head>
       <body>
-        {children}
-        {enableJS && <Scripts />}
+        <Header enableJS={data.enableJS} />
+        <Outlet />
+        <Footer />
+        {data.enableJS && <Scripts />}
         {process.env.NODE_ENV === "development" && <LiveReload />}
       </body>
     </html>
   );
-};
-
-function App() {
-  let data = useLoaderData<RouteData>();
-  return (
-    <Document enableJS={data.enableJS}>
-      <Header enableJS={data.enableJS} />
-      <Outlet />
-      <Footer />
-    </Document>
-  );
 }
-
-const ErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
-  return (
-    <Document title="oh shiz">
-      <h1>App Error</h1>
-      <pre>{error.message}</pre>
-      <p>
-        Replace this UI with what you want users to see when your app throws
-        uncaught errors.
-      </p>
-    </Document>
-  );
-};
-
-const CatchBoundary: React.VFC = () => {
-  let caught = useCatch();
-
-  switch (caught.status) {
-    case 401:
-    case 404:
-      return (
-        <Document title={`${caught.status} ${caught.statusText}`}>
-          <h1>
-            {caught.status} {caught.statusText}
-          </h1>
-        </Document>
-      );
-
-    default:
-      throw new Error(
-        `Unexpected caught response with status: ${caught.status}`
-      );
-  }
-};
-
-export default App;
-export { links, loader, meta, ErrorBoundary, CatchBoundary };

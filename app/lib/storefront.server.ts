@@ -8,11 +8,9 @@ if (!process.env.ACCESS_TOKEN) {
   throw new Error("ACCESS_TOKEN environment variable is not set");
 }
 
-let storefront = new GraphQLClient(process.env.API_URL, {
+export let storefront = new GraphQLClient(process.env.API_URL, {
   headers: {
     "Content-Type": "application/json",
     "X-Shopify-Storefront-Access-Token": process.env.ACCESS_TOKEN,
   },
 });
-
-export { storefront };

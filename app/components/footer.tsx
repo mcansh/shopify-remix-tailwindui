@@ -1,4 +1,4 @@
-const Footer: React.VFC = () => {
+export function Footer() {
   return (
     <footer className="px-4 mx-auto mt-24 max-w-7xl sm:px-6 sm:mt-32 lg:px-8">
       <div className="py-12 border-t md:flex md:items-center md:justify-between">
@@ -84,6 +84,4 @@ const Footer: React.VFC = () => {
       </div>
     </footer>
   );
-};
-
-export { Footer };
+}

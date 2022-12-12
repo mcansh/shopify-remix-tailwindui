@@ -1,5 +1,5 @@
 query Products {
-  products(first: 6) {
+  products(first: 20) {
     edges {
       node {
         title

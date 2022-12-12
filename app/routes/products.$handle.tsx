@@ -1,25 +1,21 @@
-import type {
-  ActionFunction,
-  LoaderFunction,
-  MetaFunction,
-  RouteComponent,
-} from "remix";
-import { useCatch, useLoaderData, useTransition } from "remix";
-import { Form, Link, redirect } from "remix";
 import { format, parseISO } from "date-fns";
+import type { DataFunctionArgs, MetaFunction } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import {
+  Form,
+  Link,
+  useCatch,
+  useLoaderData,
+  useTransition,
+} from "@remix-run/react";
 
 import { formatMoney } from "~/lib/format-money";
 import { storefront } from "~/lib/storefront.server";
-import type { ProductByHandleQuery, ProductsQuery } from "~/graphql";
 import { getSdk } from "~/graphql";
-import { commitSession, getSession } from "~/session.server";
+import { sessionStorage } from "~/session.server";
 
-type RouteData = {
-  product: NonNullable<ProductByHandleQuery["productByHandle"]>;
-  relatedProducts: ProductsQuery["products"]["edges"];
-};
-
-const loader: LoaderFunction = async ({ params }) => {
+export async function loader({ params }: DataFunctionArgs) {
   let sdk = getSdk(storefront);
   let [{ productByHandle }, { products }] = await Promise.all([
     sdk.ProductByHandle({ handle: params.handle! }),
@@ -27,24 +23,18 @@ const loader: LoaderFunction = async ({ params }) => {
   ]);
 
   if (!productByHandle) {
-    throw new Response("", { status: 404 });
+    throw new Response(null, { status: 404 });
   }
 
   let relatedProducts = products.edges
     .filter((item) => item.node.handle !== params.handle)
     .slice(0, 4);
 
-  let data: RouteData = { product: productByHandle, relatedProducts };
+  return json({ product: productByHandle, relatedProducts });
+}
 
-  return new Response(JSON.stringify(data), {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-};
-
-let action: ActionFunction = async ({ request }) => {
-  let session = await getSession(request.headers.get("Cookie"));
+export async function action({ request }: DataFunctionArgs) {
+  let session = await sessionStorage.getSession(request.headers.get("Cookie"));
   let requestBody = await request.text();
   let formData = new URLSearchParams(requestBody);
 
@@ -54,7 +44,7 @@ let action: ActionFunction = async ({ request }) => {
     session.set("js", enableJS);
     return redirect(returnTo ?? "/", {
       headers: {
-        "Set-Cookie": await commitSession(session),
+        "Set-Cookie": await sessionStorage.commitSession(session),
       },
     });
   }
@@ -74,9 +64,9 @@ let action: ActionFunction = async ({ request }) => {
   }
 
   return redirect(res.checkoutCreate.checkout.webUrl);
-};
+}
 
-const meta: MetaFunction = ({ data }: { data: RouteData }) => {
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
   if (!data || !data.product) {
     return {
       title: "Product not found",
@@ -86,8 +76,8 @@ const meta: MetaFunction = ({ data }: { data: RouteData }) => {
   return { title: `${data.product.title}` };
 };
 
-const ProductPage: RouteComponent = () => {
-  let { product, relatedProducts } = useLoaderData<RouteData>();
+export default function ProductPage() {
+  let { product, relatedProducts } = useLoaderData<typeof loader>();
   let transition = useTransition();
   let pendingForm = transition.submission;
 
@@ -234,15 +224,12 @@ const ProductPage: RouteComponent = () => {
       </div>
     </main>
   );
-};
+}
 
-function CatchBoundary() {
+export function CatchBoundary() {
   let caught = useCatch();
 
   if (caught.status === 404) {
     return <div className="py-4 text-xl text-center">Product not found</div>;
   }
 }
-
-export default ProductPage;
-export { action, loader, meta, CatchBoundary };

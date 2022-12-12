@@ -1,48 +1,37 @@
 import type {
-  ActionFunction,
+  DataFunctionArgs,
   LinksFunction,
-  LoaderFunction,
   MetaFunction,
-  RouteComponent,
-} from "remix";
-import { redirect } from "remix";
-import { Link, useLoaderData } from "remix";
+} from "@remix-run/node";
+import { redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 
 import { formatMoney } from "~/lib/format-money";
 import stylesUrl from "~/styles/index.css";
-import type { ProductsQuery } from "~/graphql";
 import { getSdk } from "~/graphql";
 import { storefront } from "~/lib/storefront.server";
-import { getSession, commitSession } from "~/session.server";
+import { sessionStorage } from "~/session.server";
 
-let meta: MetaFunction = () => {
+export let meta: MetaFunction = () => {
   return {
     title: "Remix Starter",
     description: "Welcome to remix!",
   };
 };
 
-let links: LinksFunction = () => {
+export let links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: stylesUrl }];
 };
 
-type RouteData = {
-  products: ProductsQuery["products"];
-};
-
-let loader: LoaderFunction = async () => {
+export async function loader() {
   let sdk = getSdk(storefront);
   let { products } = await sdk.Products();
+  return json({ products });
+}
 
-  let data: RouteData = { products };
-  return new Response(JSON.stringify(data), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
-};
-
-const action: ActionFunction = async ({ request }) => {
-  let session = await getSession(request.headers.get("Cookie"));
+export async function action({ request }: DataFunctionArgs) {
+  let session = await sessionStorage.getSession(request.headers.get("Cookie"));
   let requestBody = await request.text();
   let formData = new URLSearchParams(requestBody);
   let enableJS = formData.get("enableJS") === "true";
@@ -50,13 +39,13 @@ const action: ActionFunction = async ({ request }) => {
   session.set("js", enableJS);
   return redirect(returnTo ?? "/", {
     headers: {
-      "Set-Cookie": await commitSession(session),
+      "Set-Cookie": await sessionStorage.commitSession(session),
     },
   });
-};
+}
 
-const Index: RouteComponent = () => {
-  let data = useLoaderData<RouteData>();
+export default function IndexPage() {
+  let data = useLoaderData<typeof loader>();
 
   return (
     <main className="px-4 mt-24 sm:mt-32">
@@ -120,7 +109,4 @@ const Index: RouteComponent = () => {
       </div>
     </main>
   );
-};
-
-export default Index;
-export { action, links, loader, meta };
+}

@@ -1,11 +1,14 @@
-import { CheckCircleIcon, SearchIcon } from "@heroicons/react/outline";
-import { Form, Link, useLocation } from "remix";
+import {
+  CheckCircleIcon,
+  MagnifyingGlassIcon as SearchIcon,
+} from "@heroicons/react/24/outline";
+import { Form, Link, useLocation } from "@remix-run/react";
 
 interface Props {
   enableJS: boolean;
 }
 
-const Header: React.VFC<Props> = ({ enableJS }) => {
+export function Header({ enableJS }: Props) {
   let location = useLocation();
 
   return (
@@ -31,12 +34,7 @@ const Header: React.VFC<Props> = ({ enableJS }) => {
             </Link>
           </div>
           <div className="flex items-center justify-end">
-            <Form
-              action={location.pathname === "/" ? "/?index" : location.pathname}
-              method="post"
-              replace
-              reloadDocument
-            >
+            <Form method="post" replace reloadDocument>
               <input type="hidden" name="returnTo" value={location.pathname} />
               <label>
                 <input
@@ -74,6 +72,4 @@ const Header: React.VFC<Props> = ({ enableJS }) => {
       </div>
     </header>
   );
-};
-
-export { Header };
+}

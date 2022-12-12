@@ -1,3 +1,1 @@
-const gql = String.raw;
-
-export { gql };
+export const gql = String.raw;
