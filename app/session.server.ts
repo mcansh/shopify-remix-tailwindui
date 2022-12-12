@@ -1,8 +1,6 @@
 import { createCookieSessionStorage } from "remix";
 
-let secrets = process.env.SESSION_SECRET;
-
-if (!secrets) {
+if (!process.env.SESSION_SECRET) {
   throw new Error("SESSION_SECRET environment variable is not set");
 }
 
@@ -12,7 +10,7 @@ export let sessionStorage = createCookieSessionStorage({
     sameSite: "lax",
     path: "/",
     httpOnly: true,
-    secrets: secrets.split(","),
+    secrets: [process.env.SESSION_SECRET],
     secure: process.env.NODE_ENV === "production",
   },
 });

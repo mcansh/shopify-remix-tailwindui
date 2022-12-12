@@ -1,16 +1,17 @@
-import {
+import type {
   ActionFunction,
   LinksFunction,
   LoaderFunction,
   MetaFunction,
-  redirect,
   RouteComponent,
 } from "remix";
+import { redirect } from "remix";
 import { Link, useLoaderData } from "remix";
 
 import { formatMoney } from "~/lib/format-money";
 import stylesUrl from "~/styles/index.css";
-import { getSdk, ProductsQuery } from "~/graphql";
+import type { ProductsQuery } from "~/graphql";
+import { getSdk } from "~/graphql";
 import { storefront } from "~/lib/storefront.server";
 import { getSession, commitSession } from "~/session.server";
 
@@ -89,8 +90,8 @@ const Index: RouteComponent = () => {
 
         <div className="grid grid-cols-1 gap-y-10 sm:grid-cols-2 gap-x-6 lg:grid-cols-3 xl:gap-x-8">
           {data.products.edges.map((item) => {
-            const product = item.node;
-            const image = product.images.edges[0].node;
+            let product = item.node;
+            let image = product.images.edges[0].node;
 
             return (
               <Link

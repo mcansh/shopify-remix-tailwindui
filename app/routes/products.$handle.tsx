@@ -1,18 +1,17 @@
-import {
+import type {
   ActionFunction,
   LoaderFunction,
   MetaFunction,
   RouteComponent,
-  useCatch,
-  useLoaderData,
-  useTransition,
 } from "remix";
+import { useCatch, useLoaderData, useTransition } from "remix";
 import { Form, Link, redirect } from "remix";
 import { format, parseISO } from "date-fns";
 
 import { formatMoney } from "~/lib/format-money";
 import { storefront } from "~/lib/storefront.server";
-import { getSdk, ProductByHandleQuery, ProductsQuery } from "~/graphql";
+import type { ProductByHandleQuery, ProductsQuery } from "~/graphql";
+import { getSdk } from "~/graphql";
 import { commitSession, getSession } from "~/session.server";
 
 type RouteData = {
@@ -31,7 +30,7 @@ const loader: LoaderFunction = async ({ params }) => {
     throw new Response("", { status: 404 });
   }
 
-  const relatedProducts = products.edges
+  let relatedProducts = products.edges
     .filter((item) => item.node.handle !== params.handle)
     .slice(0, 4);
 
@@ -201,7 +200,7 @@ const ProductPage: RouteComponent = () => {
         <div className="grid grid-cols-1 mt-6 gap-x-8 gap-y-8 sm:grid-cols-2 sm:gap-y-10 lg:grid-cols-4">
           {relatedProducts.map((relatedProduct) => {
             let product = relatedProduct.node;
-            const image = product.images.edges[0].node;
+            let image = product.images.edges[0].node;
 
             return (
               <div className="relative group" key={product.handle}>

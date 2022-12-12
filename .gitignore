@@ -6,3 +6,4 @@
 .env
 /.netlify
 app/graphql/index.ts
+.eslintcache

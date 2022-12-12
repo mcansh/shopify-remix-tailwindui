@@ -1,10 +1,8 @@
 [build]
   publish = "public"
-  command = "npm run build"
-  functions = "netlify/functions"
+  command = "remix build"
 
 [dev]
-  publish = "public"
   command = "remix watch"
   port = 3000
 

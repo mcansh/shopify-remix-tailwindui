@@ -1,11 +1,10 @@
-import {
-  ActionFunction,
+import type {
   ErrorBoundaryComponent,
   LinksFunction,
   LoaderFunction,
   MetaFunction,
-  useLoaderData,
 } from "remix";
+import { ActionFunction, useLoaderData } from "remix";
 import { Meta, Links, Scripts, LiveReload, Outlet, useCatch } from "remix";
 
 import tailwindUrl from "./styles/tailwind.css";
