@@ -15,9 +15,12 @@ import { storefront } from "~/lib/storefront.server";
 import { getSdk } from "~/graphql/index.server";
 
 export async function loader({ params }: DataFunctionArgs) {
+  if (!params.handle) {
+    throw new Error("missing params.handle");
+  }
   let sdk = getSdk(storefront);
   let [{ productByHandle }, { products }] = await Promise.all([
-    sdk.ProductByHandle({ handle: params.handle! }),
+    sdk.ProductByHandle({ handle: params.handle }),
     sdk.Products(),
   ]);
 
@@ -216,6 +219,12 @@ export function CatchBoundary() {
   let caught = useCatch();
 
   if (caught.status === 404) {
-    return <div className="py-4 text-xl text-center">Product not found</div>;
+    return (
+      <div className="flex items-center justify-center h-full py-4 text-xl text-center">
+        Product not found
+      </div>
+    );
   }
+
+  throw caught;
 }

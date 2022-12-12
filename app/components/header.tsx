@@ -12,7 +12,7 @@ export function Header({ enableJS }: Props) {
   let location = useLocation();
 
   return (
-    <header className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+    <header className="w-full mx-auto max-w-7xl sm:px-6 lg:px-8">
       <div className="px-4 border-b border-gray-200 sm:px-0">
         <div className="flex items-center justify-between h-16">
           <div className="flex">

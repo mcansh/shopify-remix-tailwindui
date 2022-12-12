@@ -1,6 +1,6 @@
 export function Footer() {
   return (
-    <footer className="px-4 mx-auto mt-24 max-w-7xl sm:px-6 sm:mt-32 lg:px-8">
+    <footer className="w-full px-4 mx-auto mt-24 max-w-7xl sm:px-6 sm:mt-32 lg:px-8">
       <div className="py-12 border-t md:flex md:items-center md:justify-between">
         <div className="flex justify-center space-x-6 md:order-2">
           <a href="#" className="text-gray-400 hover:text-gray-500">

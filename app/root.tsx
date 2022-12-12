@@ -57,12 +57,6 @@ export async function loader({ request }: DataFunctionArgs) {
   );
 }
 
-interface DocumentProps {
-  enableJS?: boolean;
-  title?: string;
-  children: React.ReactNode;
-}
-
 export default function App() {
   let data = useLoaderData<typeof loader>();
   return (
@@ -72,9 +66,11 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="flex flex-col h-screen min-h-screen">
         <Header enableJS={data.enableJS} />
-        <Outlet />
+        <div className="flex-auto">
+          <Outlet />
+        </div>
         <Footer />
         {data.enableJS && <Scripts />}
         {process.env.NODE_ENV === "development" && <LiveReload />}
