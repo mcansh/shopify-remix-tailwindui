@@ -1,14 +1,9 @@
-import type {
-  DataFunctionArgs,
-  LinksFunction,
-  MetaFunction,
-} from "@remix-run/node";
+import type { DataFunctionArgs, MetaFunction } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 
 import { formatMoney } from "~/lib/format-money";
-import stylesUrl from "~/styles/index.css";
 import { getSdk } from "~/graphql";
 import { storefront } from "~/lib/storefront.server";
 import { sessionStorage } from "~/session.server";
@@ -18,10 +13,6 @@ export let meta: MetaFunction = () => {
     title: "Remix Starter",
     description: "Welcome to remix!",
   };
-};
-
-export let links: LinksFunction = () => {
-  return [{ rel: "stylesheet", href: stylesUrl }];
 };
 
 export async function loader() {

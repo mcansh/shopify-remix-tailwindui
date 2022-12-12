@@ -13,7 +13,6 @@ import {
 import { formatMoney } from "~/lib/format-money";
 import { storefront } from "~/lib/storefront.server";
 import { getSdk } from "~/graphql";
-import { sessionStorage } from "~/session.server";
 
 export async function loader({ params }: DataFunctionArgs) {
   let sdk = getSdk(storefront);
@@ -34,25 +33,12 @@ export async function loader({ params }: DataFunctionArgs) {
 }
 
 export async function action({ request }: DataFunctionArgs) {
-  let session = await sessionStorage.getSession(request.headers.get("Cookie"));
-  let requestBody = await request.text();
-  let formData = new URLSearchParams(requestBody);
-
-  if (formData.has("enableJS")) {
-    let enableJS = formData.get("enableJS") === "true";
-    let returnTo = formData.get("returnTo");
-    session.set("js", enableJS);
-    return redirect(returnTo ?? "/", {
-      headers: {
-        "Set-Cookie": await sessionStorage.commitSession(session),
-      },
-    });
-  }
+  let formData = await request.formData();
 
   let variantId = formData.get("variantId");
 
-  if (!variantId) {
-    return redirect(request.url);
+  if (!variantId || typeof variantId !== "string") {
+    throw new Response(`Invalid variantId ${variantId}`, { status: 400 });
   }
 
   let sdk = getSdk(storefront);

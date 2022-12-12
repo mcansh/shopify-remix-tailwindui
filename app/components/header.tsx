@@ -34,7 +34,7 @@ export function Header({ enableJS }: Props) {
             </Link>
           </div>
           <div className="flex items-center justify-end">
-            <Form method="post" replace reloadDocument>
+            <Form action="/?index" method="post" replace reloadDocument>
               <input type="hidden" name="returnTo" value={location.pathname} />
               <label>
                 <input
