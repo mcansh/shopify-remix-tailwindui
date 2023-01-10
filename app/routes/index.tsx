@@ -7,6 +7,7 @@ import { formatMoney } from "~/lib/format-money";
 import { getSdk } from "~/graphql/index.server";
 import { storefront } from "~/lib/storefront.server";
 import { sessionStorage } from "~/session.server";
+import { getRedirectTo } from "~/lib/redirect";
 
 export let meta: MetaFunction = () => {
   return {
@@ -23,12 +24,12 @@ export async function loader() {
 
 export async function action({ request }: DataFunctionArgs) {
   let session = await sessionStorage.getSession(request.headers.get("Cookie"));
-  let requestBody = await request.text();
-  let formData = new URLSearchParams(requestBody);
+  let formData = await request.formData();
   let enableJS = formData.get("enableJS") === "true";
-  let returnTo = formData.get("returnTo");
+  let returnTo = getRedirectTo(formData);
+
   session.set("js", enableJS);
-  return redirect(returnTo ?? "/", {
+  return redirect(returnTo, {
     headers: {
       "Set-Cookie": await sessionStorage.commitSession(session),
     },
@@ -52,13 +53,13 @@ export default function IndexPage() {
         </p>
         <div className="flex justify-center max-w-md mx-auto mt-5 md:mt-8">
           <div className="rounded-md shadow">
-            <a
-              href="#"
+            <Link
+              to="#"
               className="flex items-center justify-center w-full px-6 py-4 text-base font-medium text-white bg-gray-900 border border-transparent divide-x divide-gray-600 rounded-md hover:bg-gray-700 md:text-lg"
             >
               <span className="pr-6">Get the bundle</span>
               <span className="pl-6">$199</span>
-            </a>
+            </Link>
           </div>
         </div>
       </div>
