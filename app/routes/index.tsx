@@ -4,10 +4,9 @@ import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 
 import { formatMoney } from "~/lib/format-money";
-import { getSdk } from "~/graphql/index.server";
 import { storefront } from "~/lib/storefront.server";
-import { sessionStorage } from "~/session.server";
-import { getRedirectTo } from "~/lib/redirect";
+
+import { getSdk } from "~/graphql/index.server";
 
 export let meta: MetaFunction = () => {
   return {
@@ -20,20 +19,6 @@ export async function loader() {
   let sdk = getSdk(storefront);
   let { products } = await sdk.Products();
   return json({ products });
-}
-
-export async function action({ request }: DataFunctionArgs) {
-  let session = await sessionStorage.getSession(request.headers.get("Cookie"));
-  let formData = await request.formData();
-  let enableJS = formData.get("enableJS") === "true";
-  let returnTo = getRedirectTo(formData);
-
-  session.set("js", enableJS);
-  return redirect(returnTo, {
-    headers: {
-      "Set-Cookie": await sessionStorage.commitSession(session),
-    },
-  });
 }
 
 export default function IndexPage() {

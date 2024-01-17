@@ -1,16 +1,7 @@
-import {
-  CheckCircleIcon,
-  MagnifyingGlassIcon as SearchIcon,
-} from "@heroicons/react/24/outline";
-import { Form, Link, useLocation } from "@remix-run/react";
+import { MagnifyingGlassIcon as SearchIcon } from "@heroicons/react/24/outline";
+import { Link } from "@remix-run/react";
 
-interface Props {
-  enableJS: boolean;
-}
-
-export function Header({ enableJS }: Props) {
-  let location = useLocation();
-
+export function Header() {
   return (
     <header className="w-full mx-auto max-w-7xl sm:px-6 lg:px-8">
       <div className="px-4 border-b border-gray-200 sm:px-0">
@@ -34,35 +25,6 @@ export function Header({ enableJS }: Props) {
             </Link>
           </div>
           <div className="flex items-center justify-end">
-            <Form action="/?index" method="post" replace reloadDocument>
-              <input type="hidden" name="returnTo" value={location.pathname} />
-              <label>
-                <input
-                  name="enableJS"
-                  defaultValue={String(!enableJS)}
-                  className="sr-only"
-                />
-                <button type="submit" className="flex items-center">
-                  {enableJS ? (
-                    <CheckCircleIcon className="w-6 h-6 text-purple-500" />
-                  ) : (
-                    <svg
-                      className="w-6 h-6 text-purple-500"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      aria-hidden="true"
-                    >
-                      <circle cx="12" cy="12" r="9" strokeWidth="2" />
-                    </svg>
-                  )}
-                  <span className="ml-2 text-sm text-gray-600">
-                    Enable JavaScript?
-                  </span>
-                </button>
-              </label>
-            </Form>
             <a href="#" className="p-2 text-gray-400 hover:text-gray-500">
               <span className="sr-only">Search</span>
               <SearchIcon className="w-6 h-6" />
