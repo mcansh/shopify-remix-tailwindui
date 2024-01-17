@@ -7,14 +7,16 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import tailwindStyleHref from "tailwindcss/tailwind.css";
 
-import tailwindUrl from "./styles/tailwind.css";
 import { Header } from "./components/header";
 import { Footer } from "./components/footer";
 
 export let links: LinksFunction = () => {
   return [
-    { rel: "stylesheet", href: tailwindUrl },
+    { rel: "preload", href: tailwindStyleHref, as: "style" },
+    { rel: "stylesheet", href: tailwindStyleHref },
+    { rel: "preload", href: "https://rsms.me/inter/inter.css", as: "style" },
     { rel: "stylesheet", href: "https://rsms.me/inter/inter.css" },
     { rel: "icon", href: "/favicon.png", type: "image/png" },
   ];

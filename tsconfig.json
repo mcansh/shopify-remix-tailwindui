@@ -1,22 +1,35 @@
 {
-  "include": ["remix.env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["./build", "./public/build"],
+  "include": ["**/*.ts", "**/*.tsx"],
   "compilerOptions": {
-    "lib": ["DOM", "DOM.Iterable", "ES2019"],
+    /* base options */
     "esModuleInterop": true,
-    "jsx": "react-jsx",
-    "moduleResolution": "node",
-    "target": "ES2019",
-    "strict": true,
-    "importsNotUsedAsValues": "error",
-    "baseUrl": ".",
-    "paths": {
-      "~/*": ["./app/*"]
-    },
-    "noEmit": true,
-    "allowJs": true,
     "forceConsistentCasingInFileNames": true,
+    "incremental": true,
+    "skipLibCheck": true,
+    "target": "ES2022",
+    "allowJs": false,
+    "checkJs": false,
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": { "~/*": ["./app/*"] },
+
+    /* strictness */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noFallthroughCasesInSwitch": true,
+
+    /* transpiling */
+    "moduleResolution": "Bundler",
+    "module": "ESNext",
+    "noEmit": true,
     "isolatedModules": true,
-    "resolveJsonModule": true,
+
+    /* where our code runs */
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+
+    /* gql.tada */
     "plugins": [
       {
         "name": "@0no-co/graphqlsp",

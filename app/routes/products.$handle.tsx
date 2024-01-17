@@ -1,16 +1,17 @@
 import { format, parseISO } from "date-fns";
 import type {
-  ActionArgs as ActionFunctionArgs,
-  LoaderArgs as LoaderFunctionArgs,
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
   MetaFunction,
 } from "@remix-run/node";
 import { redirect, json } from "@remix-run/node";
 import {
   Form,
   Link,
-  useCatch,
+  useRouteError,
   useLoaderData,
-  useTransition,
+  useNavigation,
+  isRouteErrorResponse,
 } from "@remix-run/react";
 
 import { formatMoney } from "~/lib/format-money";
@@ -52,7 +53,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (!variantId || typeof variantId !== "string") {
     throw new Response(
       `expected variantId to be a string, received ${typeof variantId}`,
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -67,18 +68,16 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   if (!data || !data.product) {
-    return {
-      title: "Product not found",
-    };
+    return [{ title: "Product not found" }];
   }
 
-  return { title: `${data.product.title}` };
+  return [{ title: `${data.product.title}` }];
 };
 
 export default function ProductPage() {
   let { product, relatedProducts } = useLoaderData<typeof loader>();
-  let transition = useTransition();
-  let pendingForm = transition.submission;
+  let navigation = useNavigation();
+  let pendingForm = navigation.formData?.get("variantId");
 
   let variantId = product.variants.edges[0].node.id;
   let image = product.images.edges.at(0)?.node;
@@ -146,7 +145,7 @@ export default function ProductPage() {
                   <span>
                     Pay{" "}
                     {formatMoney(
-                      Number(product.priceRange.minVariantPrice.amount)
+                      Number(product.priceRange.minVariantPrice.amount),
                     )}
                   </span>
                 </button>
@@ -209,7 +208,7 @@ export default function ProductPage() {
                   </h3>
                   <p>
                     {formatMoney(
-                      Number(product.priceRange.minVariantPrice.amount)
+                      Number(product.priceRange.minVariantPrice.amount),
                     )}
                   </p>
                 </div>
@@ -226,9 +225,9 @@ export default function ProductPage() {
 }
 
 export function CatchBoundary() {
-  let caught = useCatch();
+  let caught = useRouteError();
 
-  if (caught.status === 404) {
+  if (isRouteErrorResponse(caught) && caught.status === 404) {
     return (
       <div className="flex items-center justify-center h-full py-4 text-xl text-center">
         Product not found
