@@ -16,6 +16,18 @@
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "plugins": [
+      {
+        "name": "@0no-co/graphqlsp",
+        "schema": {
+          "url": "",
+          "headers": {
+            "X-Shopify-Storefront-Access-Token": ""
+          }
+        },
+        "tadaOutputLocation": "./app/introspection.ts"
+      }
+    ]
   }
 }

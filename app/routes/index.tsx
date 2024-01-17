@@ -1,12 +1,9 @@
-import type { DataFunctionArgs, MetaFunction } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import type { MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 
 import { formatMoney } from "~/lib/format-money";
-import { storefront } from "~/lib/storefront.server";
-
-import { getSdk } from "~/graphql/index.server";
+import { client, ProductsQuery } from "~/lib/storefront.server";
 
 export let meta: MetaFunction = () => {
   return {
@@ -16,9 +13,8 @@ export let meta: MetaFunction = () => {
 };
 
 export async function loader() {
-  let sdk = getSdk(storefront);
-  let { products } = await sdk.Products();
-  return json({ products });
+  let result = await client.query(ProductsQuery, {});
+  return json({ products: result.data.products });
 }
 
 export default function IndexPage() {

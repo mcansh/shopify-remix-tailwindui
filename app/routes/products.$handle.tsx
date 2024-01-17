@@ -1,7 +1,10 @@
 import { format, parseISO } from "date-fns";
-import type { DataFunctionArgs, MetaFunction } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type {
+  ActionArgs as ActionFunctionArgs,
+  LoaderArgs as LoaderFunctionArgs,
+  MetaFunction,
+} from "@remix-run/node";
+import { redirect, json } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -11,48 +14,55 @@ import {
 } from "@remix-run/react";
 
 import { formatMoney } from "~/lib/format-money";
-import { storefront } from "~/lib/storefront.server";
-import { getSdk } from "~/graphql/index.server";
+import {
+  CheckoutCreateMutation,
+  client,
+  ProductByHandleQuery,
+  ProductsQuery,
+} from "~/lib/storefront.server";
 
-export async function loader({ params }: DataFunctionArgs) {
+export async function loader({ params }: LoaderFunctionArgs) {
   if (!params.handle) {
     throw new Error("missing params.handle");
   }
-  let sdk = getSdk(storefront);
-  let [{ productByHandle }, { products }] = await Promise.all([
-    sdk.ProductByHandle({ handle: params.handle }),
-    sdk.Products(),
+
+  let [productByHandle, allProducts] = await Promise.all([
+    client.query(ProductByHandleQuery, { handle: params.handle }, {}),
+    client.query(ProductsQuery, {}, {}),
   ]);
 
-  if (!productByHandle) {
+  if (!productByHandle.data.productByHandle) {
     throw new Response(null, { status: 404 });
   }
 
-  let relatedProducts = products.edges
-    .filter((item) => item.node.handle !== params.handle)
+  let relatedProducts = allProducts.data.products.edges
+    .filter((item) => item.handle !== params.handle)
     .slice(0, 4);
 
-  return json({ product: productByHandle, relatedProducts });
+  return json({
+    product: productByHandle.data.productByHandle,
+    relatedProducts,
+  });
 }
 
-export async function action({ request }: DataFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   let formData = await request.formData();
-
   let variantId = formData.get("variantId");
 
   if (!variantId || typeof variantId !== "string") {
-    throw new Response(`Invalid variantId ${variantId}`, { status: 400 });
+    throw new Response(
+      `expected variantId to be a string, received ${typeof variantId}`,
+      { status: 400 }
+    );
   }
 
-  let sdk = getSdk(storefront);
+  let result = await client.mutation(CheckoutCreateMutation, { variantId });
 
-  let res = await sdk.CreateCheckout({ variantId });
-
-  if (!res.checkoutCreate?.checkout) {
+  if (!result.data.checkoutCreate?.checkout) {
     return redirect(request.url);
   }
 
-  return redirect(res.checkoutCreate.checkout.webUrl);
+  return redirect(result.data.checkoutCreate.checkout.webUrl);
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
@@ -71,7 +81,7 @@ export default function ProductPage() {
   let pendingForm = transition.submission;
 
   let variantId = product.variants.edges[0].node.id;
-  let image = product.images.edges[0].node;
+  let image = product.images.edges.at(0)?.node;
 
   return (
     <main className="px-4 mx-auto max-w-7xl pt-14 sm:pt-24 sm:px-6 lg:px-8">
@@ -125,12 +135,12 @@ export default function ProductPage() {
                         r="10"
                         stroke="currentColor"
                         strokeWidth="4"
-                      ></circle>
+                      />
                       <path
                         className="opacity-75"
                         fill="currentColor"
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
+                      />
                     </svg>
                   )}
                   <span>
