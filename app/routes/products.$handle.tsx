@@ -3,8 +3,8 @@ import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   MetaFunction,
-} from "@remix-run/node";
-import { redirect, json } from "@remix-run/node";
+} from "@remix-run/cloudflare";
+import { redirect, json } from "@remix-run/cloudflare";
 import {
   Form,
   Link,
@@ -13,31 +13,32 @@ import {
   useNavigation,
   isRouteErrorResponse,
 } from "@remix-run/react";
-
 import { formatMoney } from "~/lib/format-money";
 import {
-  CheckoutCreateMutation,
-  client,
-  ProductByHandleQuery,
-  ProductsQuery,
-} from "~/lib/storefront.server";
+  CreateCheckout,
+  createClient,
+  ProductByHandle,
+  Products,
+} from "~/.server/storefront";
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ context, params }: LoaderFunctionArgs) {
   if (!params.handle) {
     throw new Error("missing params.handle");
   }
 
-  let [productByHandle, allProducts] = await Promise.all([
-    client.query(ProductByHandleQuery, { handle: params.handle }, {}),
-    client.query(ProductsQuery, {}, {}),
+  const client = createClient(context);
+
+  const [productByHandle, allProducts] = await Promise.all([
+    client.query(ProductByHandle, { handle: params.handle }, {}),
+    client.query(Products, {}, {}),
   ]);
 
-  if (!productByHandle.data.productByHandle) {
+  if (!productByHandle.data?.productByHandle) {
     throw new Response(null, { status: 404 });
   }
 
-  let relatedProducts = allProducts.data.products.edges
-    .filter((item) => item.handle !== params.handle)
+  const relatedProducts = allProducts.data?.products.edges
+    .filter((item) => item.node.handle !== params.handle)
     .slice(0, 4);
 
   return json({
@@ -46,9 +47,9 @@ export async function loader({ params }: LoaderFunctionArgs) {
   });
 }
 
-export async function action({ request }: ActionFunctionArgs) {
-  let formData = await request.formData();
-  let variantId = formData.get("variantId");
+export async function action({ context, request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const variantId = formData.get("variantId");
 
   if (!variantId || typeof variantId !== "string") {
     throw new Response(
@@ -57,13 +58,15 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  let result = await client.mutation(CheckoutCreateMutation, { variantId });
+  const client = createClient(context);
+  const result = await client.mutation(CreateCheckout, { variantId });
+  const checkoutUrl = result.data?.checkoutCreate?.checkout?.webUrl;
 
-  if (!result.data.checkoutCreate?.checkout) {
+  if (!checkoutUrl || typeof checkoutUrl !== "string") {
     return redirect(request.url);
   }
 
-  return redirect(result.data.checkoutCreate.checkout.webUrl);
+  return redirect(checkoutUrl);
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
@@ -75,23 +78,27 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 };
 
 export default function ProductPage() {
-  let { product, relatedProducts } = useLoaderData<typeof loader>();
-  let navigation = useNavigation();
-  let pendingForm = navigation.formData?.get("variantId");
+  const { product, relatedProducts } = useLoaderData<typeof loader>();
+  const navigation = useNavigation();
+  const pendingForm = navigation.formData?.get("variantId");
 
-  let variantId = product.variants.edges[0].node.id;
-  let image = product.images.edges.at(0)?.node;
+  const variantId = product.variants.edges.at(0)?.node.id;
+  const image = product.images.edges.at(0)?.node;
 
   return (
     <main className="px-4 mx-auto max-w-7xl pt-14 sm:pt-24 sm:px-6 lg:px-8">
       <div className="lg:grid lg:grid-cols-7 lg:gap-x-8 xl:gap-x-16">
         <div className="lg:col-span-4">
           <div className="overflow-hidden bg-gray-100 rounded-lg aspect-w-4 aspect-h-3">
-            <img
-              src={image.transformedSrc}
-              className="object-cover object-center"
-              alt={image.altText ?? ""}
-            />
+            {image ? (
+              <img
+                src={image.transformedSrc}
+                className="object-cover object-center"
+                alt={image.altText ?? ""}
+              />
+            ) : (
+              <div />
+            )}
           </div>
         </div>
         <div className="max-w-2xl mx-auto mt-14 sm:mt-16 lg:max-w-none lg:mt-0 lg:col-span-3">
@@ -105,7 +112,13 @@ export default function ProductPage() {
               </h2>
               <p className="mt-2 text-sm text-gray-500">
                 {product.tags.join(", ")} · Updated{" "}
-                <time dateTime={product.updatedAt}>
+                <time
+                  dateTime={
+                    typeof product.updatedAt === "string"
+                      ? product.updatedAt
+                      : ""
+                  }
+                >
                   {format(parseISO(product.updatedAt), "dd MMM yyyy")}
                 </time>
               </p>
@@ -186,38 +199,47 @@ export default function ProductPage() {
           </Link>
         </div>
         <div className="grid grid-cols-1 mt-6 gap-x-8 gap-y-8 sm:grid-cols-2 sm:gap-y-10 lg:grid-cols-4">
-          {relatedProducts.map((relatedProduct) => {
-            let product = relatedProduct.node;
-            let image = product.images.edges[0].node;
+          {!relatedProducts
+            ? null
+            : relatedProducts.map((relatedProduct) => {
+                const product = relatedProduct.node;
+                const image = product.images.edges.at(0)?.node;
 
-            return (
-              <div className="relative group" key={product.handle}>
-                <div className="overflow-hidden bg-gray-100 rounded-lg aspect-w-4 aspect-h-3">
-                  <img
-                    src={image.transformedSrc}
-                    className="object-cover object-center group-hover:opacity-75"
-                    alt={image.altText ?? ""}
-                  />
-                </div>
-                <div className="flex items-center justify-between mt-4 space-x-8 text-base font-medium text-gray-900">
-                  <h3>
-                    <Link to={`/products/${product.handle}`}>
-                      <span aria-hidden="true" className="absolute inset-0" />
-                      {product.title}
-                    </Link>
-                  </h3>
-                  <p>
-                    {formatMoney(
-                      Number(product.priceRange.minVariantPrice.amount),
-                    )}
-                  </p>
-                </div>
-                <p className="mt-1 text-sm text-gray-500">
-                  {product.tags.join(", ")}
-                </p>
-              </div>
-            );
-          })}
+                return (
+                  <div className="relative group" key={product.handle}>
+                    <div className="overflow-hidden bg-gray-100 rounded-lg aspect-w-4 aspect-h-3">
+                      {image ? (
+                        <img
+                          src={image.transformedSrc}
+                          className="object-cover object-center group-hover:opacity-75"
+                          alt={image.altText ?? ""}
+                        />
+                      ) : (
+                        <div />
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between mt-4 space-x-8 text-base font-medium text-gray-900">
+                      <h3>
+                        <Link to={`/products/${product.handle}`}>
+                          <span
+                            aria-hidden="true"
+                            className="absolute inset-0"
+                          />
+                          {product.title}
+                        </Link>
+                      </h3>
+                      <p>
+                        {formatMoney(
+                          Number(product.priceRange.minVariantPrice.amount),
+                        )}
+                      </p>
+                    </div>
+                    <p className="mt-1 text-sm text-gray-500">
+                      {product.tags.join(", ")}
+                    </p>
+                  </div>
+                );
+              })}
         </div>
       </div>
     </main>
@@ -225,7 +247,7 @@ export default function ProductPage() {
 }
 
 export function CatchBoundary() {
-  let caught = useRouteError();
+  const caught = useRouteError();
 
   if (isRouteErrorResponse(caught) && caught.status === 404) {
     return (

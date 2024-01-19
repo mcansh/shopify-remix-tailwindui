@@ -1,24 +1,25 @@
-import type { MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { MetaFunction } from "@remix-run/cloudflare";
+import { LoaderFunctionArgs, json } from "@remix-run/cloudflare";
 import { Link, useLoaderData } from "@remix-run/react";
 
 import { formatMoney } from "~/lib/format-money";
-import { client, ProductsQuery } from "~/lib/storefront.server";
+import { createClient, Products } from "~/.server/storefront";
 
-export let meta: MetaFunction = () => {
-  return {
-    title: "Remix Starter",
-    description: "Welcome to remix!",
-  };
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Remix Starter" },
+    { name: "description", content: "Welcome to remix!" },
+  ];
 };
 
-export async function loader() {
-  let result = await client.query(ProductsQuery, {});
-  return json({ products: result.data.products });
+export async function loader({ context }: LoaderFunctionArgs) {
+  const client = createClient(context);
+  const result = await client.query(Products, {});
+  return json({ products: result.data?.products });
 }
 
 export default function IndexPage() {
-  let data = useLoaderData<typeof loader>();
+  const data = useLoaderData<typeof loader>();
 
   return (
     <main className="px-4 mt-24 sm:mt-32">
@@ -51,33 +52,44 @@ export default function IndexPage() {
         </h2>
 
         <div className="grid grid-cols-1 gap-y-10 sm:grid-cols-2 gap-x-6 lg:grid-cols-3 xl:gap-x-8">
-          {data.products.edges.map((item) => {
-            let product = item.node;
-            let image = product.images.edges[0].node;
+          {!data.products ? (
+            <p>nah</p>
+          ) : (
+            data.products.edges.map((item) => {
+              const product = item.node;
+              const image = product.images.edges.at(0)?.node;
 
-            return (
-              <Link
-                to={`/products/${product.handle}`}
-                key={product.handle}
-                className="group"
-              >
-                <div className="w-full overflow-hidden rounded-lg aspect-w-4 aspect-h-3 sm:aspect-w-4 sm:aspect-h-3">
-                  <img src={image.transformedSrc} alt={image.altText ?? ""} />
-                </div>
-                <div className="flex items-center justify-between mt-4 text-base font-medium text-gray-900">
-                  <h3>{product.title}</h3>
-                  <p>
-                    {formatMoney(
-                      Number(product.priceRange.minVariantPrice.amount)
+              return (
+                <Link
+                  to={`/products/${product.handle}`}
+                  key={product.handle}
+                  className="group"
+                >
+                  <div className="w-full overflow-hidden rounded-lg aspect-w-4 aspect-h-3 sm:aspect-w-4 sm:aspect-h-3">
+                    {image ? (
+                      <img
+                        src={image.transformedSrc}
+                        alt={image.altText ?? ""}
+                      />
+                    ) : (
+                      <div />
                     )}
+                  </div>
+                  <div className="flex items-center justify-between mt-4 text-base font-medium text-gray-900">
+                    <h3>{product.title}</h3>
+                    <p>
+                      {formatMoney(
+                        Number(product.priceRange.minVariantPrice.amount),
+                      )}
+                    </p>
+                  </div>
+                  <p className="mt-1 text-sm italic text-gray-500">
+                    {product.tags.join(", ")}
                   </p>
-                </div>
-                <p className="mt-1 text-sm italic text-gray-500">
-                  {product.tags.join(", ")}
-                </p>
-              </Link>
-            );
-          })}
+                </Link>
+              );
+            })
+          )}
         </div>
       </div>
     </main>

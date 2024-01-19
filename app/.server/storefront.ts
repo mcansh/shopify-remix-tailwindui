@@ -1,29 +1,32 @@
-import { cacheExchange, createClient, fetchExchange } from "@urql/core";
-import { initGraphQLTada } from "gql.tada";
+import { AppLoadContext } from "@remix-run/cloudflare";
+import {
+  cacheExchange,
+  createClient as createUrqlClient,
+  fetchExchange,
+} from "@urql/core";
+import { graphql as gql } from "gql.tada";
 
-import { introspection } from "~/introspection";
+export function createClient(context: AppLoadContext) {
+  if (!context.env.API_URL) {
+    throw new Error("API_URL environment variable is not set");
+  }
 
-export let gql = initGraphQLTada({ introspection: typeof introspection });
+  if (!context.env.ACCESS_TOKEN) {
+    throw new Error("ACCESS_TOKEN environment variable is not set");
+  }
 
-if (!process.env.API_URL) {
-  throw new Error("API_URL environment variable is not set");
-}
-
-if (!process.env.ACCESS_TOKEN) {
-  throw new Error("ACCESS_TOKEN environment variable is not set");
-}
-
-export let client = createClient({
-  url: process.env.API_URL,
-  exchanges: [cacheExchange, fetchExchange],
-  fetchOptions: {
-    headers: {
-      "X-Shopify-Storefront-Access-Token": process.env.ACCESS_TOKEN,
+  return createUrqlClient({
+    url: context.env.API_URL,
+    exchanges: [cacheExchange, fetchExchange],
+    fetchOptions: {
+      headers: {
+        "X-Shopify-Storefront-Access-Token": context.env.ACCESS_TOKEN,
+      },
     },
-  },
-});
+  });
+}
 
-export let ProductFragment = gql(`
+export const ProductFragment = gql(`
   fragment ProductFragment on Product {
     title
     handle
@@ -44,7 +47,7 @@ export let ProductFragment = gql(`
   }
 `);
 
-export let ProductsQuery = gql(`
+export const Products = gql(`
   query Products {
     products(first: 20) {
       edges {
@@ -71,7 +74,7 @@ export let ProductsQuery = gql(`
   }
 `);
 
-export let ProductByHandleQuery = gql(`
+export const ProductByHandle = gql(`
   query ProductByHandle($handle: String!) {
     productByHandle(handle: $handle) {
       title
@@ -103,7 +106,7 @@ export let ProductByHandleQuery = gql(`
   }
 `);
 
-export let CheckoutCreateMutation = gql(`
+export const CreateCheckout = gql(`
   mutation CreateCheckout($variantId: ID!) {
     checkoutCreate(
       input: { lineItems: { variantId: $variantId, quantity: 1 } }

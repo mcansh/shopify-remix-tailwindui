@@ -1,4 +1,4 @@
-import type { LinksFunction } from "@remix-run/node";
+import type { LinksFunction } from "@remix-run/cloudflare";
 import {
   Links,
   LiveReload,
@@ -7,12 +7,12 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import tailwindStyleHref from "tailwindcss/tailwind.css";
+import tailwindStyleHref from "./tailwind.css";
 
 import { Header } from "./components/header";
 import { Footer } from "./components/footer";
 
-export let links: LinksFunction = () => {
+export const links: LinksFunction = () => {
   return [
     { rel: "preload", href: tailwindStyleHref, as: "style" },
     { rel: "stylesheet", href: tailwindStyleHref },
@@ -38,7 +38,7 @@ export default function App() {
         </div>
         <Footer />
         <Scripts />
-        {process.env.NODE_ENV === "development" && <LiveReload />}
+        <LiveReload />
         <ScrollRestoration />
       </body>
     </html>

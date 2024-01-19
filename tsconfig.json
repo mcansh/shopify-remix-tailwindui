@@ -1,6 +1,6 @@
 {
   "exclude": ["./build", "./public/build"],
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx", "app/.server/storefront.ts"],
   "compilerOptions": {
     /* base options */
     "esModuleInterop": true,
@@ -34,13 +34,13 @@
       {
         "name": "@0no-co/graphqlsp",
         "schema": {
-          "url": "",
+          "url": "https://tailwind-labs.myshopify.com/api/2021-07/graphql.json",
           "headers": {
-            "X-Shopify-Storefront-Access-Token": ""
-          }
+            "X-Shopify-Storefront-Access-Token": "a4b2ddf14e14322145bc73e2c7042f35",
+          },
         },
-        "tadaOutputLocation": "./app/introspection.ts"
-      }
-    ]
-  }
+        "tadaOutputLocation": "./graphql-env.d.ts",
+      },
+    ],
+  },
 }

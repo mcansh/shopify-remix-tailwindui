@@ -1,8 +1,13 @@
 /node_modules
 /.cache
-/netlify/functions/server/build
 /public/build
-/app/styles/tailwind.css
 .env
 /.netlify
 .eslintcache
+.dev.vars
+.wrangler
+functions/\[\[path\]\].js
+functions/\[\[path\]\].js.map
+functions/version.txt
+functions/metafile.js.json
+functions/metafile.server.json

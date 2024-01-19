@@ -2,24 +2,11 @@
  *
  * @remarks
  * This is an introspection of your schema saved as a file by GraphQLSP.
- * You may import it to create a `graphql()` tag function with `gql.tada`
- * by importing it and passing it to `initGraphQLTada<>()`.
- *
- * @example
- * ```
- * import { initGraphQLTada } from 'gql.tada';
- * import type { introspection } from './introspection';
- *
- * export const graphql = initGraphQLTada<{
- *   introspection: typeof introspection;
- *   scalars: {
- *     DateTime: string;
- *     Json: any;
- *   };
- * }>();
- * ```
+ * It will automatically be used by `gql.tada` to infer the types of your GraphQL documents.
+ * If you need to reuse this data or update your `scalars`, update `tadaOutputLocation` to
+ * instead save to a .ts instead of a .d.ts file.
  */
-const introspection = {
+export type introspection = {
   "__schema": {
     "queryType": {
       "name": "QueryRoot"
@@ -11423,7 +11410,7 @@ const introspection = {
       },
       {
         "kind": "OBJECT",
-        "name": "InContext",
+        "name": "InContextAnnotation",
         "fields": [
           {
             "name": "description",
@@ -11443,7 +11430,7 @@ const introspection = {
               "kind": "NON_NULL",
               "ofType": {
                 "kind": "OBJECT",
-                "name": "InContextType",
+                "name": "InContextAnnotationType",
                 "ofType": null
               }
             },
@@ -11454,7 +11441,7 @@ const introspection = {
       },
       {
         "kind": "OBJECT",
-        "name": "InContextType",
+        "name": "InContextAnnotationType",
         "fields": [
           {
             "name": "kind",
@@ -23114,14 +23101,16 @@ const introspection = {
             "name": "OUNCES"
           }
         ]
-      },
-      {
-        "kind": "SCALAR",
-        "name": "Any"
       }
     ],
     "directives": []
   }
-} as const;
+};
 
-export { introspection };
+import * as gqlTada from 'gql.tada';
+
+declare module 'gql.tada' {
+  interface setupSchema {
+    introspection: introspection
+  }
+}
