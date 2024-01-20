@@ -13,6 +13,7 @@ import {
   useRouteError,
   useLoaderData,
   useNavigation,
+  useSearchParams,
   isRouteErrorResponse,
 } from "@remix-run/react";
 import { formatMoney } from "~/lib/format-money";
@@ -23,29 +24,93 @@ import {
   Products,
 } from "~/.server/storefront";
 
-export async function loader({ context, params }: LoaderFunctionArgs) {
+export async function loader({ context, params, request }: LoaderFunctionArgs) {
   if (!params.handle) {
     throw new Error("missing params.handle");
   }
 
+  const url = new URL(request.url);
+  const selectedOptions = Array.from(url.searchParams.entries()).map(
+    ([name, value]) => ({ name, value }),
+  );
+
   const client = createClient(context);
 
   const [productByHandle, allProducts] = await Promise.all([
-    client.query(ProductByHandle, { handle: params.handle }, {}),
+    client.query(
+      ProductByHandle,
+      { handle: params.handle, selectedOptions },
+      {},
+    ),
     client.query(Products, {}, {}),
   ]);
 
-  if (!productByHandle.data?.productByHandle) {
+  if (!productByHandle.data?.product) {
     throw new Response(null, { status: 404 });
   }
+
+  const optionNames = new Set(
+    productByHandle.data.product.options.map((option) => option.name),
+  );
+  const optionsMap = new Map(
+    selectedOptions
+      .filter((option) => optionNames.has(option.name))
+      .map((option) => [option.name, option.value]),
+  );
+
+  let defaultVariantId: string | undefined = undefined;
+  let selectedVariantId: string | undefined = undefined;
+  let availableForSale = false;
+  let price = productByHandle.data.product.priceRange.minVariantPrice;
+  for (const item of productByHandle.data.product.variants.edges) {
+    if (typeof defaultVariantId === "undefined") {
+      defaultVariantId = String(item.node.id);
+    }
+    if (
+      item.node.selectedOptions.every(
+        (option) =>
+          optionsMap.has(option.name) &&
+          optionsMap.get(option.name) === option.value,
+      )
+    ) {
+      selectedVariantId = String(item.node.id);
+      availableForSale = item.node.availableForSale;
+      price = item.node.price;
+    }
+  }
+
+  if (typeof selectedVariantId === "undefined") {
+    selectedVariantId = defaultVariantId;
+    for (const item of productByHandle.data.product.variants.edges) {
+      if (item.node.id === selectedVariantId) {
+        selectedVariantId = item.node.id;
+        availableForSale = item.node.availableForSale;
+        price = item.node.price;
+      }
+    }
+  }
+
+  const productOptions =
+    productByHandle.data.product.options.length === 1 &&
+    productByHandle.data.product.options.at(0)?.values.length === 1
+      ? []
+      : productByHandle.data.product.options.map((option) => {
+          return { name: option.name, values: option.values };
+        });
 
   const relatedProducts = allProducts.data?.products.edges
     .filter((item) => item.node.handle !== params.handle)
     .slice(0, 4);
 
   return json({
-    product: productByHandle.data.product,
     relatedProducts,
+    product: {
+      ...productByHandle.data.product,
+      options: productOptions,
+      availableForSale,
+      selectedVariantId: selectedVariantId!,
+      price,
+    },
   });
 }
 
@@ -82,10 +147,10 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 export default function ProductPage() {
   const { product, relatedProducts } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
-  const pendingForm = navigation.formData?.get("variantId");
-
-  const variantId = product.variants.edges.at(0)?.node.id;
-  const image = product.images.edges.at(0)?.node;
+  const pendingForm =
+    navigation.formData?.get("variantId") === product.selectedVariantId;
+  const [searchParams] = useSearchParams();
+  searchParams.sort();
 
   return (
     <main className="px-4 mx-auto max-w-7xl pt-14 sm:pt-24 sm:px-6 lg:px-8">
@@ -175,10 +240,40 @@ export default function ProductPage() {
           ) : (
             <p className="mt-6 text-gray-500">{product.description}</p>
           )}
+
+          {product.options.map((option) => (
+            <div key={option.name} className="mt-6">
+              <ul className="mt-2" data-testid="product-option">
+                {option.values.map((value) => {
+                  const active = searchParams.get(option.name) === value;
+                  const productSearchParams = new URLSearchParams(searchParams);
+                  productSearchParams.set(option.name, value);
+                  return (
+                    <li key={value} className="mr-2 inline-block">
+                      <Link
+                        className={clsx(
+                          "rounded border px-4 py-2 hover:text-gray-300 hover:border-gray-300",
+                          active ? "border-gray-300" : "border-gray-900",
+                        )}
+                        to={{ search: productSearchParams.toString() }}
+                      >
+                        {value}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+
           <div className="grid grid-cols-1 mt-10 gap-x-6 gap-y-4 sm:grid-cols-2">
             <Form method="post">
               <fieldset disabled={!!pendingForm}>
-                <input type="hidden" name="variantId" value={variantId} />
+                <input
+                  type="hidden"
+                  name="variantId"
+                  value={product.selectedVariantId}
+                />
                 <button
                   type="submit"
                   className="flex items-center justify-center w-full px-8 py-3 text-base font-medium text-white bg-gray-900 border border-transparent rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-gray-500"
@@ -205,12 +300,7 @@ export default function ProductPage() {
                       />
                     </svg>
                   )}
-                  <span>
-                    Pay{" "}
-                    {formatMoney(
-                      Number(product.priceRange.minVariantPrice.amount),
-                    )}
-                  </span>
+                  <span>Pay {formatMoney(Number(product.price.amount))}</span>
                 </button>
               </fieldset>
             </Form>

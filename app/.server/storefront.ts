@@ -99,10 +99,28 @@ export const ProductByHandle = graphql(`
       description
       descriptionHtml
       updatedAt
-      variants(first: 1) {
+      options {
+        id
+        name
+        values
+      }
+      variants(first: 250) {
         edges {
           node {
             id
+            title
+            availableForSale
+            image {
+              url
+              altText
+            }
+            price {
+              amount
+            }
+            selectedOptions {
+              name
+              value
+            }
           }
         }
       }
