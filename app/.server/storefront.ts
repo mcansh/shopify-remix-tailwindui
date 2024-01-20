@@ -4,7 +4,7 @@ import {
   createClient as createUrqlClient,
   fetchExchange,
 } from "@urql/core";
-import { graphql as gql } from "gql.tada";
+import { graphql } from "gql.tada";
 
 export function createClient(context: AppLoadContext) {
   if (!context.env.API_URL) {
@@ -26,7 +26,7 @@ export function createClient(context: AppLoadContext) {
   });
 }
 
-export const ProductFragment = gql(`
+export const ProductFragment = graphql(`
   fragment ProductFragment on Product {
     title
     handle
@@ -39,7 +39,7 @@ export const ProductFragment = gql(`
     images(first: 1) {
       edges {
         node {
-          transformedSrc
+          url
           altText
         }
       }
@@ -47,7 +47,7 @@ export const ProductFragment = gql(`
   }
 `);
 
-export const Products = gql(`
+export const Products = graphql(`
   query Products {
     products(first: 20) {
       edges {
@@ -63,7 +63,7 @@ export const Products = gql(`
           images(first: 1) {
             edges {
               node {
-                transformedSrc
+                url
                 altText
               }
             }
@@ -74,9 +74,9 @@ export const Products = gql(`
   }
 `);
 
-export const ProductByHandle = gql(`
+export const ProductByHandle = graphql(`
   query ProductByHandle($handle: String!) {
-    productByHandle(handle: $handle) {
+    product(handle: $handle) {
       title
       handle
       tags
@@ -88,7 +88,7 @@ export const ProductByHandle = gql(`
       images(first: 1) {
         edges {
           node {
-            transformedSrc
+            url
             altText
           }
         }
@@ -106,7 +106,7 @@ export const ProductByHandle = gql(`
   }
 `);
 
-export const CreateCheckout = gql(`
+export const CreateCheckout = graphql(`
   mutation CreateCheckout($variantId: ID!) {
     checkoutCreate(
       input: { lineItems: { variantId: $variantId, quantity: 1 } }

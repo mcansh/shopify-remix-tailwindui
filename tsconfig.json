@@ -1,6 +1,6 @@
 {
   "exclude": ["./build", "./public/build"],
-  "include": ["**/*.ts", "**/*.tsx", "app/.server/storefront.ts"],
+  "include": ["**/*.ts", "**/*.tsx"],
   "compilerOptions": {
     /* base options */
     "esModuleInterop": true,

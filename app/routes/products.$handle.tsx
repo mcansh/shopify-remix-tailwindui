@@ -42,7 +42,7 @@ export async function loader({ context, params }: LoaderFunctionArgs) {
     .slice(0, 4);
 
   return json({
-    product: productByHandle.data.productByHandle,
+    product: productByHandle.data.product,
     relatedProducts,
   });
 }
@@ -90,10 +90,10 @@ export default function ProductPage() {
       <div className="lg:grid lg:grid-cols-7 lg:gap-x-8 xl:gap-x-16">
         <div className="lg:col-span-4">
           <div className="overflow-hidden bg-gray-100 rounded-lg aspect-w-4 aspect-h-3">
-            {image ? (
+            {image?.url ? (
               <img
-                src={image.transformedSrc}
-                className="object-cover object-center"
+                src={image.url}
+                className="object-contain"
                 alt={image.altText ?? ""}
               />
             ) : (
@@ -110,6 +110,7 @@ export default function ProductPage() {
               <h2 id="information-heading" className="sr-only">
                 Product information
               </h2>
+
               <p className="mt-2 text-sm text-gray-500">
                 {product.tags.join(", ")} · Updated{" "}
                 <time
@@ -208,10 +209,10 @@ export default function ProductPage() {
                 return (
                   <div className="relative group" key={product.handle}>
                     <div className="overflow-hidden bg-gray-100 rounded-lg aspect-w-4 aspect-h-3">
-                      {image ? (
+                      {image?.url ? (
                         <img
-                          src={image.transformedSrc}
-                          className="object-cover object-center group-hover:opacity-75"
+                          src={image.url}
+                          className="object-contain group-hover:opacity-75"
                           alt={image.altText ?? ""}
                         />
                       ) : (

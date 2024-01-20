@@ -66,10 +66,11 @@ export default function IndexPage() {
                   className="group"
                 >
                   <div className="w-full overflow-hidden rounded-lg aspect-w-4 aspect-h-3 sm:aspect-w-4 sm:aspect-h-3">
-                    {image ? (
+                    {image?.url ? (
                       <img
-                        src={image.transformedSrc}
+                        src={image.url}
                         alt={image.altText ?? ""}
+                        className="object-contain"
                       />
                     ) : (
                       <div />
