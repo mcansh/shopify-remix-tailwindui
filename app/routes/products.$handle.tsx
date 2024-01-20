@@ -125,7 +125,14 @@ export default function ProductPage() {
               </p>
             </div>
           </div>
-          <p className="mt-6 text-gray-500">{product.description}</p>
+          {product.descriptionHtml ? (
+            <div
+              className="mt-6 text-gray-500 space-y-6"
+              dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
+            />
+          ) : (
+            <p className="mt-6 text-gray-500">{product.description}</p>
+          )}
           <div className="grid grid-cols-1 mt-10 gap-x-6 gap-y-4 sm:grid-cols-2">
             <Form method="post">
               <fieldset disabled={!!pendingForm}>

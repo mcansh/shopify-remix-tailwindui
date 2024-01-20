@@ -94,6 +94,7 @@ export const ProductByHandle = graphql(`
         }
       }
       description
+      descriptionHtml
       updatedAt
       variants(first: 1) {
         edges {
