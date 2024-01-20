@@ -59,6 +59,14 @@ export default function IndexPage() {
               const product = item.node;
               const image = product.images.edges.at(0)?.node;
 
+              const maxPrice = Number(
+                product.priceRange.maxVariantPrice.amount,
+              );
+              const minPrice = Number(
+                product.priceRange.minVariantPrice.amount,
+              );
+              const samePrice = maxPrice === minPrice;
+
               return (
                 <Link
                   to={`/products/${product.handle}`}
@@ -79,6 +87,9 @@ export default function IndexPage() {
                   <div className="flex items-center justify-between mt-4 text-base font-medium text-gray-900">
                     <h3>{product.title}</h3>
                     <p>
+                      {samePrice ? null : (
+                        <span className="text-sm text-gray-500">From </span>
+                      )}
                       {formatMoney(
                         Number(product.priceRange.minVariantPrice.amount),
                       )}

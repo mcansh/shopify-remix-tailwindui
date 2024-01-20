@@ -59,6 +59,9 @@ export const Products = graphql(`
             minVariantPrice {
               amount
             }
+            maxVariantPrice {
+              amount
+            }
           }
           images(first: 1) {
             edges {
