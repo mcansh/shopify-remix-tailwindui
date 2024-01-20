@@ -88,7 +88,7 @@ export const ProductByHandle = graphql(`
           amount
         }
       }
-      images(first: 1) {
+      images(first: 250) {
         edges {
           node {
             url

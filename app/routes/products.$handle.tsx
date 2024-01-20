@@ -5,6 +5,8 @@ import type {
   MetaFunction,
 } from "@remix-run/cloudflare";
 import { redirect, json } from "@remix-run/cloudflare";
+import { Tab } from "@headlessui/react";
+import clsx from "clsx";
 import {
   Form,
   Link,
@@ -89,16 +91,56 @@ export default function ProductPage() {
     <main className="px-4 mx-auto max-w-7xl pt-14 sm:pt-24 sm:px-6 lg:px-8">
       <div className="lg:grid lg:grid-cols-7 lg:gap-x-8 xl:gap-x-16">
         <div className="lg:col-span-4">
-          <div className="overflow-hidden bg-gray-100 rounded-lg aspect-w-4 aspect-h-3">
-            {image?.url ? (
-              <img
-                src={image.url}
-                className="object-contain"
-                alt={image.altText ?? ""}
-              />
-            ) : (
-              <div />
-            )}
+          <div>
+            {/* Image gallery */}
+            <Tab.Group as="div" className="flex flex-col-reverse">
+              {/* Image selector */}
+              {product.images.edges.length === 1 ? null : (
+                <div className="mx-auto mt-6 w-full max-w-2xl sm:block lg:max-w-none">
+                  <Tab.List className="grid grid-cols-4 gap-6">
+                    {product.images.edges.map((item) => (
+                      <Tab
+                        key={item.node.url}
+                        className="relative flex aspect-w-4 aspect-h-3 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50 focus:ring-offset-4"
+                      >
+                        {({ selected }) => (
+                          <>
+                            <span className="absolute inset-0 overflow-hidden rounded-md">
+                              <img
+                                src={item.node.url}
+                                alt=""
+                                className="h-full w-full object-cover object-center"
+                              />
+                            </span>
+                            <span
+                              className={clsx(
+                                selected
+                                  ? "ring-indigo-500"
+                                  : "ring-transparent",
+                                "pointer-events-none absolute inset-0 rounded-md ring-2 ring-offset-2",
+                              )}
+                              aria-hidden="true"
+                            />
+                          </>
+                        )}
+                      </Tab>
+                    ))}
+                  </Tab.List>
+                </div>
+              )}
+
+              <Tab.Panels className="overflow-hidden bg-gray-100 rounded-lg aspect-w-4 aspect-h-3 w-full">
+                {product.images.edges.map((item) => (
+                  <Tab.Panel key={item.node.url}>
+                    <img
+                      src={item.node.url}
+                      alt=""
+                      className="h-full w-full object-contain object-center sm:rounded-lg"
+                    />
+                  </Tab.Panel>
+                ))}
+              </Tab.Panels>
+            </Tab.Group>
           </div>
         </div>
         <div className="max-w-2xl mx-auto mt-14 sm:mt-16 lg:max-w-none lg:mt-0 lg:col-span-3">
