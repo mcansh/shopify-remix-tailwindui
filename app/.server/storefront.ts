@@ -35,27 +35,6 @@ export function createClient(context: AppLoadContext) {
   });
 }
 
-export const ProductFragment = graphql(`
-  fragment ProductFragment on Product {
-    title
-    handle
-    tags
-    priceRange {
-      minVariantPrice {
-        amount
-      }
-    }
-    images(first: 1) {
-      edges {
-        node {
-          url
-          altText
-        }
-      }
-    }
-  }
-`);
-
 export const Products = graphql(`
   query Products {
     products(first: 20) {
