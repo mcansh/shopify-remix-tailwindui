@@ -220,13 +220,7 @@ export default function ProductPage() {
 
               <p className="mt-2 text-sm text-gray-500">
                 {product.tags.join(", ")} · Updated{" "}
-                <time
-                  dateTime={
-                    typeof product.updatedAt === "string"
-                      ? product.updatedAt
-                      : ""
-                  }
-                >
+                <time dateTime={product.updatedAt}>
                   {format(parseISO(product.updatedAt), "dd MMM yyyy")}
                 </time>
               </p>

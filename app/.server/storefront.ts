@@ -4,7 +4,16 @@ import {
   createClient as createUrqlClient,
   fetchExchange,
 } from "@urql/core";
-import { graphql } from "gql.tada";
+import { initGraphQLTada } from "gql.tada";
+import type { introspection } from "./graphql-env.d.ts";
+
+export const graphql = initGraphQLTada<{
+  introspection: introspection;
+  scalars: {
+    DateTime: string;
+    JSON: any;
+  };
+}>();
 
 export function createClient(context: AppLoadContext) {
   if (!context.env.API_URL) {

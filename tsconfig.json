@@ -39,7 +39,7 @@
             "X-Shopify-Storefront-Access-Token": "a4b2ddf14e14322145bc73e2c7042f35",
           },
         },
-        "tadaOutputLocation": "./graphql-env.d.ts",
+        "tadaOutputLocation": "./app/.server/graphql-env.d.ts",
       },
     ],
   },
