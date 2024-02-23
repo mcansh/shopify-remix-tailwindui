@@ -37,11 +37,7 @@ export async function loader({ context, params, request }: LoaderFunctionArgs) {
   const client = createClient(context);
 
   const [productByHandle, allProducts] = await Promise.all([
-    client.query(
-      ProductByHandle,
-      { handle: params.handle, selectedOptions },
-      {},
-    ),
+    client.query(ProductByHandle, { handle: params.handle, selectedOptions }),
     client.query(Products, {}, {}),
   ]);
 

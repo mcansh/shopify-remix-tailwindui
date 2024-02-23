@@ -8,9 +8,6 @@ import {
 } from "@remix-run/react";
 import tailwindStyleHref from "./tailwind.css?url";
 
-import { Header } from "./components/header";
-import { Footer } from "./components/footer";
-
 export const links: LinksFunction = () => {
   return [
     { rel: "preload", href: tailwindStyleHref, as: "style" },
@@ -31,11 +28,7 @@ export default function App() {
         <Links />
       </head>
       <body className="flex flex-col h-screen min-h-screen">
-        <Header />
-        <div className="flex-auto">
-          <Outlet />
-        </div>
-        <Footer />
+        <Outlet />
         <Scripts />
         <ScrollRestoration />
       </body>
