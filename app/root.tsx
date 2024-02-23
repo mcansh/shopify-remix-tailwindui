@@ -1,7 +1,6 @@
 import type { LinksFunction } from "@remix-run/cloudflare";
 import {
   Links,
-  LiveReload,
   Meta,
   Outlet,
   Scripts,
@@ -38,7 +37,6 @@ export default function App() {
         </div>
         <Footer />
         <Scripts />
-        <LiveReload />
         <ScrollRestoration />
       </body>
     </html>
