@@ -19,7 +19,7 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
   const client = createClient(context);
 
   const query = q
-    ? ["title", "handle", "tag"].map((field) => `(${field}:${q})`).join(" OR ")
+    ? ["title", "handle", "tag"].map((field) => `(${field}:${q}*)`).join(" OR ")
     : undefined;
 
   const result = await client.query(Products, { query });
