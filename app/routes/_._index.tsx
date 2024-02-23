@@ -14,15 +14,15 @@ export const meta: MetaFunction = () => {
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
-  const query = url.searchParams.get("q");
-
+  const q = url.searchParams.get("q");
+  if (q === "") return redirect("/");
   const client = createClient(context);
 
-  if (url.searchParams.has("q") && !query) throw redirect("/");
+  const query = q
+    ? ["title", "handle", "tag"].map((field) => `(${field}:${q})`).join(" OR ")
+    : undefined;
 
-  const result = await client.query(Products, {
-    query: query ? `(title:${query}) OR (handle:${query})` : undefined,
-  });
+  const result = await client.query(Products, { query });
   return json({ products: result.data?.products });
 }
 
