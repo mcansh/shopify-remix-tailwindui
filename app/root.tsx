@@ -7,7 +7,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import tailwindStyleHref from "./tailwind.css";
+import tailwindStyleHref from "./tailwind.css?url";
 
 import { Header } from "./components/header";
 import { Footer } from "./components/footer";
