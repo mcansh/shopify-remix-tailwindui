@@ -1,10 +1,13 @@
+import * as React from "react";
 import { MagnifyingGlassIcon as SearchIcon } from "@heroicons/react/24/outline";
 import { Form, Link, useSearchParams } from "@remix-run/react";
-import clsx from "clsx";
+import { clsx } from "clsx/lite";
 
 export function Header() {
   const [search] = useSearchParams();
-  const hasSearch = search.has("search") || search.has("q");
+  const [showSearch, setShowSearch] = React.useState(() => {
+    return search.has("search") || search.has("q");
+  });
 
   return (
     <header className="w-full mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -31,10 +34,10 @@ export function Header() {
           <div
             className={clsx(
               "flex items-center justify-end",
-              hasSearch ? "gap-2" : "",
+              showSearch ? "gap-2" : "",
             )}
           >
-            {hasSearch ? (
+            {showSearch ? (
               <>
                 <SearchIcon className="w-6 h-6 text-gray-400" />
                 <Form method="get" action="/">
@@ -51,6 +54,10 @@ export function Header() {
               <Link
                 to={{ search: "?search" }}
                 className="p-2 text-gray-400 hover:text-gray-500 flex items-center gap-2"
+                onClick={(event) => {
+                  event.preventDefault();
+                  setShowSearch(true);
+                }}
               >
                 <span className="sr-only">Search</span>
                 <SearchIcon className="w-6 h-6" />
