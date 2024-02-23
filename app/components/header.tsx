@@ -1,15 +1,13 @@
-import {
-  CheckCircleIcon,
-  MagnifyingGlassIcon as SearchIcon,
-} from "@heroicons/react/24/outline";
-import { Form, Link, useLocation } from "@remix-run/react";
+import * as React from "react";
+import { MagnifyingGlassIcon as SearchIcon } from "@heroicons/react/24/outline";
+import { Form, Link, useSearchParams } from "@remix-run/react";
+import { clsx } from "clsx/lite";
 
-interface Props {
-  enableJS: boolean;
-}
-
-export function Header({ enableJS }: Props) {
-  let location = useLocation();
+export function Header() {
+  const [search] = useSearchParams();
+  const [showSearch, setShowSearch] = React.useState(() => {
+    return search.has("search") || search.has("q");
+  });
 
   return (
     <header className="w-full mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -33,40 +31,38 @@ export function Header({ enableJS }: Props) {
               </svg>
             </Link>
           </div>
-          <div className="flex items-center justify-end">
-            <Form action="/?index" method="post" replace reloadDocument>
-              <input type="hidden" name="returnTo" value={location.pathname} />
-              <label>
-                <input
-                  name="enableJS"
-                  defaultValue={String(!enableJS)}
-                  className="sr-only"
-                />
-                <button type="submit" className="flex items-center">
-                  {enableJS ? (
-                    <CheckCircleIcon className="w-6 h-6 text-purple-500" />
-                  ) : (
-                    <svg
-                      className="w-6 h-6 text-purple-500"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      aria-hidden="true"
-                    >
-                      <circle cx="12" cy="12" r="9" strokeWidth="2" />
-                    </svg>
-                  )}
-                  <span className="ml-2 text-sm text-gray-600">
-                    Enable JavaScript?
-                  </span>
-                </button>
-              </label>
-            </Form>
-            <a href="#" className="p-2 text-gray-400 hover:text-gray-500">
-              <span className="sr-only">Search</span>
-              <SearchIcon className="w-6 h-6" />
-            </a>
+          <div
+            className={clsx(
+              "flex items-center justify-end",
+              showSearch ? "gap-2" : "",
+            )}
+          >
+            {showSearch ? (
+              <>
+                <SearchIcon className="w-6 h-6 text-gray-400" />
+                <Form method="get" action="/">
+                  <input
+                    type="text"
+                    defaultValue={search.get("q") || ""}
+                    className="block w-32 p-2 text-gray-900 bg-white border border-gray-300 rounded-md"
+                    name="q"
+                    placeholder="Search"
+                  />
+                </Form>
+              </>
+            ) : (
+              <Link
+                to={{ search: "?search" }}
+                className="p-2 text-gray-400 hover:text-gray-500 flex items-center gap-2"
+                onClick={(event) => {
+                  event.preventDefault();
+                  setShowSearch(true);
+                }}
+              >
+                <span className="sr-only">Search</span>
+                <SearchIcon className="w-6 h-6" />
+              </Link>
+            )}
           </div>
         </div>
       </div>

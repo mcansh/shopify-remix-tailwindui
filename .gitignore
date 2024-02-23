@@ -1,9 +1,8 @@
 /node_modules
 /.cache
-/netlify/functions/server/build
-/public/build
-/app/styles/tailwind.css
+/build
 .env
-/.netlify
-app/graphql/index.server.ts
 .eslintcache
+.dev.vars
+.wrangler
+tsconfig.tsbuildinfo
