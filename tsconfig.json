@@ -1,5 +1,5 @@
 {
-  "exclude": ["./build", "./public/build"],
+  "exclude": ["./build"],
   "include": ["**/*.ts", "**/*.tsx"],
   "compilerOptions": {
     /* base options */
@@ -14,6 +14,7 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": { "~/*": ["./app/*"] },
+    "types": ["@remix-run/cloudflare", "vite/client"],
 
     /* strictness */
     "strict": true,
@@ -36,11 +37,11 @@
         "schema": {
           "url": "https://tailwind-labs.myshopify.com/api/2021-07/graphql.json",
           "headers": {
-            "X-Shopify-Storefront-Access-Token": "a4b2ddf14e14322145bc73e2c7042f35",
-          },
+            "X-Shopify-Storefront-Access-Token": "a4b2ddf14e14322145bc73e2c7042f35"
+          }
         },
-        "tadaOutputLocation": "./app/.server/graphql-env.d.ts",
-      },
-    ],
-  },
+        "tadaOutputLocation": "./app/.server/graphql-env.d.ts"
+      }
+    ]
+  }
 }

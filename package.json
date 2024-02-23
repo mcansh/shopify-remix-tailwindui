@@ -5,12 +5,14 @@
   "license": "",
   "type": "module",
   "scripts": {
-    "build": "remix build",
-    "dev": "remix dev --manual -c \"npm run start\"",
-    "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
-    "start": "wrangler pages dev --compatibility-date=2023-06-21 ./public",
+    "dev": "remix vite:dev",
+    "build": "remix vite:build",
+    "start": "wrangler pages dev ./build/client",
+    "deploy": "wrangler pages deploy ./build/client",
+    "lint": "eslint --ignore-path .gitignore --no-error-on-unmatched-pattern --cache --cache-location ./node_modules/.cache/eslint --fix .",
+    "format": "prettier --ignore-path .gitignore --ignore-unknown --cache --write .",
     "typecheck": "tsc",
-    "format": "prettier --write --ignore-path .gitignore ."
+    "typegen": "wrangler types"
   },
   "dependencies": {
     "@headlessui/react": "2.0.0-alpha.4",
@@ -26,7 +28,8 @@
     "isbot": "^5.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "type-fest": "^4.10.3"
+    "type-fest": "^4.10.3",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@0no-co/graphql.web": "^1.0.4",
@@ -57,6 +60,8 @@
     "prettier-plugin-tailwindcss": "^0.5.11",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3",
+    "vite": "^5.1.4",
+    "vite-tsconfig-paths": "^4.3.1",
     "wrangler": "^3.29.0"
   },
   "engines": {

@@ -16,20 +16,21 @@ export const graphql = initGraphQLTada<{
 }>();
 
 export function createClient(context: AppLoadContext) {
-  if (!context.env.API_URL) {
+  if (!context.cloudflare.env.API_URL) {
     throw new Error("API_URL environment variable is not set");
   }
 
-  if (!context.env.ACCESS_TOKEN) {
+  if (!context.cloudflare.env.ACCESS_TOKEN) {
     throw new Error("ACCESS_TOKEN environment variable is not set");
   }
 
   return createUrqlClient({
-    url: context.env.API_URL,
+    url: context.cloudflare.env.API_URL,
     exchanges: [cacheExchange, fetchExchange],
     fetchOptions: {
       headers: {
-        "X-Shopify-Storefront-Access-Token": context.env.ACCESS_TOKEN,
+        "X-Shopify-Storefront-Access-Token":
+          context.cloudflare.env.ACCESS_TOKEN,
       },
     },
   });

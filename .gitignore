@@ -1,13 +1,8 @@
 /node_modules
 /.cache
-/public/build
+/build
 .env
-/.netlify
 .eslintcache
 .dev.vars
 .wrangler
-functions/\[\[path\]\].js
-functions/\[\[path\]\].js.map
-functions/version.txt
-functions/metafile.js.json
-functions/metafile.server.json
+tsconfig.tsbuildinfo
