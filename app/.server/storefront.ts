@@ -37,8 +37,8 @@ export function createClient(context: AppLoadContext) {
 }
 
 export const Products = graphql(`
-  query Products {
-    products(first: 20) {
+  query Products($query: String) {
+    products(first: 20, query: $query) {
       edges {
         node {
           title

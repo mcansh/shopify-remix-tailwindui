@@ -1,7 +1,11 @@
 import { MagnifyingGlassIcon as SearchIcon } from "@heroicons/react/24/outline";
-import { Link } from "@remix-run/react";
+import { Form, Link, useSearchParams } from "@remix-run/react";
+import clsx from "clsx";
 
 export function Header() {
+  const [search] = useSearchParams();
+  const hasSearch = search.has("search") || search.has("q");
+
   return (
     <header className="w-full mx-auto max-w-7xl sm:px-6 lg:px-8">
       <div className="px-4 border-b border-gray-200 sm:px-0">
@@ -24,11 +28,34 @@ export function Header() {
               </svg>
             </Link>
           </div>
-          <div className="flex items-center justify-end">
-            <a href="#" className="p-2 text-gray-400 hover:text-gray-500">
-              <span className="sr-only">Search</span>
-              <SearchIcon className="w-6 h-6" />
-            </a>
+          <div
+            className={clsx(
+              "flex items-center justify-end",
+              hasSearch ? "gap-2" : "",
+            )}
+          >
+            {hasSearch ? (
+              <>
+                <SearchIcon className="w-6 h-6 text-gray-400" />
+                <Form method="get" action="/">
+                  <input
+                    type="text"
+                    defaultValue={search.get("q") || ""}
+                    className="block w-32 p-2 text-gray-900 bg-white border border-gray-300 rounded-md"
+                    name="q"
+                    placeholder="Search"
+                  />
+                </Form>
+              </>
+            ) : (
+              <Link
+                to={{ search: "?search" }}
+                className="p-2 text-gray-400 hover:text-gray-500 flex items-center gap-2"
+              >
+                <span className="sr-only">Search</span>
+                <SearchIcon className="w-6 h-6" />
+              </Link>
+            )}
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import type { MetaFunction } from "@remix-run/cloudflare";
 import { LoaderFunctionArgs, json } from "@remix-run/cloudflare";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, redirect, useLoaderData } from "@remix-run/react";
 
 import { formatMoney } from "~/lib/format-money";
 import { createClient, Products } from "~/.server/storefront";
@@ -12,9 +12,17 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export async function loader({ context }: LoaderFunctionArgs) {
+export async function loader({ context, request }: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+  const query = url.searchParams.get("q");
+
   const client = createClient(context);
-  const result = await client.query(Products, {});
+
+  if (url.searchParams.has("q") && !query) throw redirect("/");
+
+  const result = await client.query(Products, {
+    query: query ? `(title:${query}) OR (handle:${query})` : undefined,
+  });
   return json({ products: result.data?.products });
 }
 
@@ -53,7 +61,7 @@ export default function IndexPage() {
 
         <div className="grid grid-cols-1 gap-y-10 sm:grid-cols-2 gap-x-6 lg:grid-cols-3 xl:gap-x-8">
           {!data.products ? (
-            <p>nah</p>
+            <div>No products found</div>
           ) : (
             data.products.edges.map((item) => {
               const product = item.node;
