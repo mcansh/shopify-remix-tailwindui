@@ -3,7 +3,7 @@ import { LoaderFunctionArgs, json } from "@remix-run/cloudflare";
 import { Link, redirect, useLoaderData } from "@remix-run/react";
 
 import { formatMoney } from "~/lib/format-money";
-import { createClient, Products } from "~/.server/storefront";
+import { createClient, ProductsQuery } from "~/.server/storefront";
 
 export const meta: MetaFunction = () => {
   return [
@@ -22,7 +22,7 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     ? ["title", "handle", "tag"].map((field) => `(${field}:${q}*)`).join(" OR ")
     : undefined;
 
-  const result = await client.query(Products, { query });
+  const result = await client.query(ProductsQuery, { query });
   return json({ products: result.data?.products });
 }
 

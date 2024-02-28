@@ -36,7 +36,7 @@ export function createClient(context: AppLoadContext) {
   });
 }
 
-export const Products = graphql(`
+export const ProductsQuery = graphql(`
   query Products($query: String) {
     products(first: 20, query: $query) {
       edges {
@@ -66,7 +66,7 @@ export const Products = graphql(`
   }
 `);
 
-export const ProductByHandle = graphql(`
+export const ProductByHandleQuery = graphql(`
   query ProductByHandle($handle: String!) {
     product(handle: $handle) {
       title
@@ -117,7 +117,7 @@ export const ProductByHandle = graphql(`
   }
 `);
 
-export const CreateCheckout = graphql(`
+export const CreateCheckoutMutation = graphql(`
   mutation CreateCheckout($variantId: ID!) {
     checkoutCreate(
       input: { lineItems: { variantId: $variantId, quantity: 1 } }

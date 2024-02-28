@@ -18,10 +18,10 @@ import {
 } from "@remix-run/react";
 import { formatMoney } from "~/lib/format-money";
 import {
-  CreateCheckout,
+  CreateCheckoutMutation,
   createClient,
-  ProductByHandle,
-  Products,
+  ProductByHandleQuery,
+  ProductsQuery,
 } from "~/.server/storefront";
 
 export async function loader({ context, params, request }: LoaderFunctionArgs) {
@@ -37,8 +37,11 @@ export async function loader({ context, params, request }: LoaderFunctionArgs) {
   const client = createClient(context);
 
   const [productByHandle, allProducts] = await Promise.all([
-    client.query(ProductByHandle, { handle: params.handle, selectedOptions }),
-    client.query(Products, {}, {}),
+    client.query(ProductByHandleQuery, {
+      handle: params.handle,
+      selectedOptions,
+    }),
+    client.query(ProductsQuery, {}, {}),
   ]);
 
   if (!productByHandle.data?.product) {
@@ -122,7 +125,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
   }
 
   const client = createClient(context);
-  const result = await client.mutation(CreateCheckout, { variantId });
+  const result = await client.mutation(CreateCheckoutMutation, { variantId });
   const checkoutUrl = result.data?.checkoutCreate?.checkout?.webUrl;
 
   if (!checkoutUrl || typeof checkoutUrl !== "string") {
