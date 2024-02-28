@@ -1,6 +1,6 @@
 {
   "exclude": ["./build"],
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx", "**/.server/", "**/.client/"],
   "compilerOptions": {
     /* base options */
     "esModuleInterop": true,
