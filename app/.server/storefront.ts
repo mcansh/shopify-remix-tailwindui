@@ -12,6 +12,7 @@ export const graphql = initGraphQLTada<{
   scalars: {
     DateTime: string;
     JSON: any;
+    URL: string;
   };
 }>();
 
@@ -24,15 +25,14 @@ export function createClient(context: AppLoadContext) {
     throw new Error("ACCESS_TOKEN environment variable is not set");
   }
 
+  let headers = new Headers({
+    "X-Shopify-Storefront-Access-Token": context.cloudflare.env.ACCESS_TOKEN,
+  });
+
   return createUrqlClient({
     url: context.cloudflare.env.API_URL,
     exchanges: [cacheExchange, fetchExchange],
-    fetchOptions: {
-      headers: {
-        "X-Shopify-Storefront-Access-Token":
-          context.cloudflare.env.ACCESS_TOKEN,
-      },
-    },
+    fetchOptions: { headers },
   });
 }
 
